@@ -8,14 +8,23 @@ from dotenv import load_dotenv
 
 class Settings(BaseSettings):
     load_dotenv()
+
+    HOST: str
     
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
     POSTGRES_PORT: int
+    DEBUG: bool
 
     SQLALCHEMY_URL: str | None = None
+
+    @validator('POSTGRES_HOST', pre=True)
+    def set_db_host(cls, value, values):
+        if values.get("DEBUG"):
+            return values.get("HOST")
+        return value
 
     @validator('SQLALCHEMY_URL', pre=True)
     def get_sqlalchemy_url(cls, value, values):

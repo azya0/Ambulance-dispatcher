@@ -5,7 +5,7 @@ from db.models import Post, Worker
 from db.engine import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from routers.schemas import PostScheme, WorkerScheme, WorkerSchemeRead
+from routers.schemas import PostScheme, WorkerScheme, WorkerSchemePatch, WorkerSchemeRead
 
 router = APIRouter(
     prefix="/personal",
@@ -20,14 +20,29 @@ async def get_post_by_id(id: int, session: AsyncSession = Depends(get_async_sess
     if post is None:
         raise HTTPException(404, f'post with id {id} not found')
 
-    return PostScheme.from_orm(post)
+    return PostScheme.model_validate(post)
+
+
+@router.delete('/post/{id}')
+async def delete_post_by_id(id: int, session: AsyncSession = Depends(get_async_session)):
+    post = await session.get(Post, id)
+
+    if post is None:
+        raise HTTPException(404, f'post with id {id} not found')
+
+    workers = (await session.scalars(select(Worker).where(Worker.post_id == id))).all()
+
+    if len(workers) != 0:
+        raise HTTPException(400, f'post with id {id} connected with workers: {", ".join([str(worker.id) for worker in workers])}')
+
+    await session.delete(post)
 
 
 @router.get('/posts', response_model=list[PostScheme])
 async def get_posts(session: AsyncSession = Depends(get_async_session)):
     data = (await session.scalars(select(Post))).all()
 
-    return [PostScheme.from_orm(value) for value in data]
+    return [PostScheme.model_validate(value) for value in data]
 
 
 @router.post('/post', response_model=PostScheme)
@@ -43,7 +58,7 @@ async def add_post(post_name: str, session: AsyncSession = Depends(get_async_ses
     await session.commit()
     await session.refresh(new_post)
 
-    return PostScheme.from_orm(new_post)
+    return PostScheme.model_validate(new_post)
 
 
 @router.post('/worker', response_model=WorkerScheme)
@@ -59,8 +74,8 @@ async def add_worker(data: WorkerSchemeRead, session: AsyncSession = Depends(get
     await session.commit()
     await session.refresh(worker)
 
-    result = WorkerScheme.from_orm(worker)
-    result.post = PostScheme.from_orm(post)
+    result = WorkerScheme.model_validate(worker)
+    result.post = PostScheme.model_validate(post)
     
     return result
 
@@ -72,11 +87,44 @@ async def get_worker_by_id(id: int, session: AsyncSession = Depends(get_async_se
     if worker is None:
         raise HTTPException(404, f'no worker with id {id}')
 
-    return WorkerScheme.from_orm(worker)
+    return WorkerScheme.model_validate(worker)
+
+
+@router.patch('/worker/{id}', response_model=WorkerScheme)
+async def patch_worker_by_id(id: int, data: WorkerSchemePatch, session: AsyncSession = Depends(get_async_session)):
+    worker = await session.get(Worker, id, options=(selectinload(Worker.post), ))
+
+    if worker is None:
+        raise HTTPException(404, f'no worker with id {id}')
+
+    if data.post_id is not None:
+        post = await session.get(Post, data.post_id)
+
+        if post is None:
+            raise HTTPException(400, f'post with id {data.post_id} not found')
+
+    for key in (data := data.model_dump(exclude_none=True)):
+        setattr(worker, key, data[key])
+
+    session.add(worker)
+    await session.commit()
+    await session.refresh(worker)
+
+    return WorkerScheme.model_validate(worker)
+
+
+@router.delete('/worker/{id}')
+async def delete_worker_by_id(id: int, session: AsyncSession = Depends(get_async_session)):
+    worker = await session.get(Worker, id)
+
+    if worker is None:
+        raise HTTPException(404, f'no worker with id {id}')
+
+    await session.delete(worker)
 
 
 @router.get('/workers', response_model=list[WorkerScheme])
 async def get_workers(session: AsyncSession = Depends(get_async_session)):
     workers = (await session.scalars(select(Worker).options(selectinload(Worker.post)))).all()
 
-    return [WorkerScheme.from_orm(worker) for worker in workers]
+    return [WorkerScheme.model_validate(worker) for worker in workers]

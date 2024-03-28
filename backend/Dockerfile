@@ -1,11 +1,11 @@
 FROM python:3.10-slim
 
-COPY requirements.txt ./server/backend/requirements.txt
+COPY requirement.txt ./backend/requirement.txt
 
 RUN pip install --upgrade pip
 
-RUN pip install -r /server/backend/requirements.txt
+RUN pip install -r ./backend/requirement.txt
 
-COPY . ./server/backend
+COPY . ./backend
 
-WORKDIR /server/backend
+WORKDIR /backend

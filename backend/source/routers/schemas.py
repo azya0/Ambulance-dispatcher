@@ -22,6 +22,14 @@ class WorkerSchemeRead(HumanScheme):
     post_id: int
 
 
+class WorkerSchemePatch(BaseModel):
+    first_name: str | None = None
+    second_name: str | None = None
+    patronymic: str | None = None
+    post_id: int | None = None
+    is_ill: bool | None = None
+
+
 class WorkerScheme(HumanScheme, ID):
     post: PostScheme
     is_ill: bool

@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   db:
+    container_name: db
     image: postgres
     restart: always
     environment:
@@ -37,4 +38,4 @@ services:
       - .env
     depends_on:
       - db
-    command: bash -c "alembic upgrade head && cd source && uvicorn main:application --host ${HOST} --port ${BACKEND_PORT}"
+    command: bash -c "alembic upgrade head && cd source && uvicorn main:app --host ${HOST} --port ${BACKEND_PORT}"
