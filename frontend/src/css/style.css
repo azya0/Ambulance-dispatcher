@@ -1,0 +1,131 @@
+#root {
+    --main-bg-color: #303254;
+    --main-color: #797dd4;
+    --main-color-dim: #8689c3;
+    --color-green: #79d489;
+    --color-red: #d47979;
+}
+
+
+body, #root {
+    background: var(--main-bg-color);
+    color: var(--main-color);
+    margin: 0;
+    display: flow-root;
+    height: 100vh;
+    font-family: monospace;
+}
+
+a:link {
+    color: var(--main-color);
+    text-decoration: none;
+}
+
+a:visited {
+    color: var(--main-color);
+}
+
+#error-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 75vh;
+}
+
+#error-page h1 {
+    font-weight: bolder;
+    font-size: 64px;
+}
+
+#error-page b {
+    font-size: 24px;
+}
+
+#error-page a:link {
+    text-decoration: underline;
+}
+
+#navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 5%;
+}
+
+#navbar a {
+    display: flex;
+    height: 100%;
+    padding: 0 2.5% 0 2.5%;
+    align-items: center;
+    transition: all 0.5s;
+    font-size: 15px;
+}
+
+#navbar a:hover {
+    background: var(--main-color);
+    color: var(--main-bg-color);
+    font-size: 20px;
+}
+
+.presonal-container {
+    box-sizing: border-box;
+    height: 95%;
+    padding: 5%;
+}
+
+.presonal-container table {
+    width: 100%;
+    font-size: 20px;
+    border-collapse: collapse;
+}
+
+.presonal-container table td {
+    display: table-cell;
+    vertical-align: inherit;
+    font-weight: lighter;
+    text-align: center;
+    border: 2px solid var(--main-color-dim);
+    padding: .5rem;
+}
+
+.color-red {
+    color: var(--color-red);
+}
+
+.color-red .ill::after {
+    background: var(--color-red);
+}
+
+.color-green {
+    color: var(--color-green);
+}
+
+.color-green .ill::after {
+    background: var(--color-green);
+}
+
+.ill {
+    position: relative;
+}
+
+.ill:hover {
+    cursor: pointer;
+}
+
+.ill::after {
+    position: absolute;
+    content: '';
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    display: block;
+    width: 0;
+    transition: 0.5s;
+    height: 1px;
+}
+
+.ill:hover:after {
+    width: 100%;
+}
