@@ -5,7 +5,7 @@ import {
 } from "react-router-dom";
 import Error from './components/Error';
 import Navbar from './components/Navbar';
-import Personal from './components/Personal';
+import Personal from './components/Personal/Personal';
 import './css/style.css';
 
 const router = [
