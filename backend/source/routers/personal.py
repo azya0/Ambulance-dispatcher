@@ -79,7 +79,6 @@ async def add_worker(data: WorkerSchemeRead, session: AsyncSession = Depends(get
     
     return result
 
-
 @router.get('/worker/{id}', response_model=WorkerScheme)
 async def get_worker_by_id(id: int, session: AsyncSession = Depends(get_async_session)):
     worker = await session.get(Worker, id, options=(selectinload(Worker.post), ))

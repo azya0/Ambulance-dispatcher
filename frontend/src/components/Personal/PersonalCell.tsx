@@ -32,11 +32,11 @@ function PersonCell({ data, id, field }: Prop) {
 
     return (
         <>
-        <td className={ isInput ? "table-cell-input" : "table-cell-text" }>
+        <td className={ isInput ? "table-cell-input" : "table-cell-text" } onDoubleClick={() => setInput(true)}>
             {
                 (isInput) ?
                 <input ref={inputRef} defaultValue={value} onKeyDown={keyPress} onBlur={() => setInput(false)}/> :
-                <b onDoubleClick={() => setInput(true)}> {value} </b>
+                <b> {value} </b>
             }
         </td>
         </>

@@ -75,9 +75,12 @@ a:visited {
 }
 
 .presonal-container {
+    z-index: 0;
+    position: relative;
     box-sizing: border-box;
     height: 95%;
     padding: 5%;
+    transition: 0.5s;
 }
 
 .presonal-container table {
@@ -85,6 +88,26 @@ a:visited {
     font-size: 22px;
     border-collapse: collapse;
     table-layout: fixed;
+}
+
+.presonal-container table th:last-child {
+    width: 2.5rem;
+}
+
+.personal-string td:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.personal-string td:last-child b {
+    margin-top: .25rem;
+    cursor: pointer;
+    transition: 0.5s;
+}
+
+.personal-string td:last-child b:hover {
+    color: var(--color-red);
 }
 
 .color-red {
@@ -216,4 +239,134 @@ tfoot {
 
 tfoot:hover {
     visibility: inherit;
+}
+
+#table-footer {
+    font-size: 35px;
+    text-align: center;
+    background: var(--main-color);
+    color: var(--main-bg-color);
+    cursor: pointer;
+    opacity: 0.2;
+    transition: 0.5s;
+}
+
+#table-footer:hover {
+    opacity: 1;
+}
+
+.background-disabled {
+    filter: blur(5px);
+    pointer-events: none;
+}
+
+.disappear-animation-enter {
+    opacity: 0;
+}
+
+.disappear-animation-enter-active {
+    opacity: 1;
+    transition: 0.5s;
+}
+
+.disappear-animation-exit {
+    opacity: 1;
+}
+
+.disappear-animation-exit-active {
+    opacity: 0;
+    transition: 0.5s;
+}
+
+#add-worker {
+    left: 12.5%;
+    top: 12.5%;
+    z-index: 1;
+    position: absolute;
+    width: 75%;
+    height: 75%;
+    background-color: var(--main-color);
+    color: var(--main-bg-color);
+    display: flex;
+    justify-content: center;
+}
+
+#add-worker .cross {
+    font-size: 25px;
+    position: inherit;
+    top: 3.5%;
+    right: 3.5%;
+    cursor: pointer;
+}
+
+#add-worker .cross:hover {
+    animation: rotatation 1s;
+}
+
+#add-worker form {
+    margin-top: 5%;
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#add-worker form h1 {
+    margin: 1.5% 0 1.5% 0;
+}
+
+#add-worker form input {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 3rem;
+    border: none;
+    padding-left: 2%;
+    font-size: 20px;
+    background: var(--main-bg-color);
+    font-weight: bold;
+    color: var(--main-color);
+    transition: .5s;
+    box-sizing: border-box;
+}
+
+#add-worker form input:focus {
+    outline: 0;
+    height: 3.5rem;
+}
+
+#add-worker select {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 3rem;
+    border: none;
+    padding: 0 2% 0 2%;
+    font-size: 20px;
+    background: var(--main-bg-color);
+    font-weight: bold;
+    color: var(--main-color);
+    transition: .5s;
+    box-sizing: border-box;
+}
+
+#add-worker form select:focus {
+    outline: 0;
+    height: 3.5rem;
+}
+
+#add-worker form select option[data-checked] {
+    background-color: red;
+}
+
+#add-worker form button {
+    margin-bottom: 5rem;
+    border: none;
+    height: 2.5rem;
+    width: 100%;
+    cursor: pointer;
+    background-color: var(--main-bg-color);
+    color: var(--main-color);
+    font-size: 25px;
+    font-weight: bold;
 }
