@@ -219,9 +219,13 @@ a:visited {
     flex-direction: column;
 }
 
+.table-cell-text,
 .post-container div b {
     text-overflow: ellipsis;
     overflow: hidden;
+}
+
+.post-container div b {
     cursor: pointer;
     transition: 1s;
 
