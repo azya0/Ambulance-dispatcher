@@ -28,11 +28,13 @@ function PersonalString({ currentId, workers, setWorkers, posts }: Prop) {
             <td className={ (data.is_ill ? "color-red" : "color-green") + " table-cell-text" }>
                 <b className="ill" onClick={setIll}>{ data.is_ill ? "Болеет" : "Здоров" }</b>
             </td>
-            <td><b className='cross' onClick={() => {
+            <td><div>
+            <b className='cross' onClick={() => {
                 axios.delete(`${config.url}/personal/worker/${data.id}`).then(() => {
-                    setWorkers(workers.filter((value) => value.id != data.id));
+                    setWorkers(workers.filter((value) => value.id !== data.id));
                 });
-            }}>╳</b></td>
+            }}>╳</b>
+                </div></td>
         </tr>
         </>
     )

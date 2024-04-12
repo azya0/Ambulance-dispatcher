@@ -1,19 +1,14 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import config from "../../config";
-
-interface Prop {
-    id: string,
-    field: string,
-    data: string,
-}
+import { Post } from "./Post";
 
 
-function PersonCell({ data, id, field }: Prop) {
-    const [value, setValue] = useState(data);
+function PostCell({ id, name }: Post) {
+    const [value, setValue] = useState(name);
     const [isInput, setInput] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-
+    
     useEffect(() => {
         if (isInput)
             inputRef.current?.focus();
@@ -21,15 +16,15 @@ function PersonCell({ data, id, field }: Prop) {
 
     const keyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-            axios.patch(`${config.url}/personal/worker/${id}`, {
-                [field]: (event.target as HTMLInputElement).value,
-            }).then((response) => {
-                setValue(response.data[field]);
-                setInput(false);
+            axios.patch(`${config.url}/personal/post/${id}`, null, {
+                params: {name: (event.target as HTMLInputElement).value}
+            }).then(response => {
+                    setValue(response.data.name);
+                    setInput(false);
             });
         }
     }
-
+    
     return (
         <>
         <td className={ isInput ? "table-cell-input" : "table-cell-text" } onDoubleClick={() => setInput(true)}>
@@ -40,8 +35,7 @@ function PersonCell({ data, id, field }: Prop) {
             }
         </td>
         </>
-    )
+    );
 }
 
-
-export default PersonCell;
+export default PostCell;

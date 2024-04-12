@@ -6,7 +6,10 @@ import {
 import Error from './components/Error';
 import Navbar from './components/Navbar';
 import Personal from './components/Personal/Personal';
+import Main from './components/Main';
+import Post from './components/Post/Post';
 import './css/style.css';
+
 
 const router = [
   {
@@ -15,8 +18,16 @@ const router = [
     errorElement: <Error/>,
     children: [
       {
+        path: '',
+        element: <Main/>
+      },
+      {
         path: 'personal',
         element: <Personal/>
+      },
+      {
+        path: 'posts',
+        element: <Post/>
       },
       {
         path: 'cars',
@@ -42,14 +53,12 @@ const router = [
   }
 ];
 
-router[0].element = <Navbar data={router[0].children.map((data) => `/${data.path}`)}/>;
+router[0].element = <Navbar data={router[0].children.slice(1).map((data) => `/${data.path}`)}/>;
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
 root.render(
-//  <React.StrictMode>
-    <RouterProvider router={createBrowserRouter(router)}/>
-//  </React.StrictMode>
+  <RouterProvider router={createBrowserRouter(router)}/>
 );

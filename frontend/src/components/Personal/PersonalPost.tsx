@@ -22,7 +22,7 @@ function PersonalPost({ id, post_id, posts }: Prop) {
 
     return (
         <>
-        <td className="table-cell-text">
+        <td className="table-cell-text post-cell-text">
             {
                 (isOpen) ?
                 <div className="post-container">

@@ -23,6 +23,22 @@ async def get_post_by_id(id: int, session: AsyncSession = Depends(get_async_sess
     return PostScheme.model_validate(post)
 
 
+@router.patch('/post/{id}', response_model=PostScheme)
+async def patch_post_by_id(id: int, name: str, session: AsyncSession = Depends(get_async_session)):
+    post = await session.get(Post, id)
+
+    if post is None:
+        raise HTTPException(404, f'post with id {id} not found')
+
+    post.name = name
+
+    session.add(post)
+    await session.commit()
+    await session.refresh(post)
+
+    return PostScheme.model_validate(post)
+
+
 @router.delete('/post/{id}')
 async def delete_post_by_id(id: int, session: AsyncSession = Depends(get_async_session)):
     post = await session.get(Post, id)
@@ -30,10 +46,10 @@ async def delete_post_by_id(id: int, session: AsyncSession = Depends(get_async_s
     if post is None:
         raise HTTPException(404, f'post with id {id} not found')
 
-    workers = (await session.scalars(select(Worker).where(Worker.post_id == id))).all()
+    worker = (await session.scalars(select(Worker).where(Worker.post_id == id))).first()
 
-    if len(workers) != 0:
-        raise HTTPException(400, f'post with id {id} connected with workers: {", ".join([str(worker.id) for worker in workers])}')
+    if worker is not None:
+        raise HTTPException(409, f'post is used at least by user {worker.id}')
 
     await session.delete(post)
 
