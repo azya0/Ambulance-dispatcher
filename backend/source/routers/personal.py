@@ -5,7 +5,7 @@ from db.models import Post, Worker
 from db.engine import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from routers.schemas import PostScheme, WorkerScheme, WorkerSchemePatch, WorkerSchemeRead
+from routers.schemas import PostScheme, PostSchemePatch, WorkerScheme, WorkerSchemePatch, WorkerSchemeRead
 
 router = APIRouter(
     prefix="/personal",
@@ -24,13 +24,14 @@ async def get_post_by_id(id: int, session: AsyncSession = Depends(get_async_sess
 
 
 @router.patch('/post/{id}', response_model=PostScheme)
-async def patch_post_by_id(id: int, name: str, session: AsyncSession = Depends(get_async_session)):
+async def patch_post_by_id(id: int, data: PostSchemePatch, session: AsyncSession = Depends(get_async_session)):
     post = await session.get(Post, id)
 
     if post is None:
         raise HTTPException(404, f'post with id {id} not found')
 
-    post.name = name
+    for key in (data := data.model_dump(exclude_none=True)):
+        setattr(post, key, data[key])
 
     session.add(post)
     await session.commit()

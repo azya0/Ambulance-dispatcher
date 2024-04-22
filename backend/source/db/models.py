@@ -25,7 +25,6 @@ class Worker(Base, Human):
     __tablename__ = 'worker'
 
     is_ill = Column(Boolean, default=False)
-
     post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
 
     post = relationship("Post", back_populates="workers", uselist=False)
@@ -34,26 +33,13 @@ class Post(Base):
     __tablename__ = 'post'
 
     name = Column(String(128), nullable=False)
+    is_driver = Column(Boolean, default=False)
 
     workers = relationship("Worker", back_populates="post")
 
 
-class Driver(Base, Human):
-    __tablename__ = 'driver'
-
-    is_ill = Column(Boolean, default=False)
-
-    car_id = Column(Integer, ForeignKey('car.id'), nullable=True)
-
-
 class Car(Base):
     __tablename__ = 'car'
-
-    type_id = Column(Integer, ForeignKey('car_type.id'), nullable=False)
-
-
-class CatType(Base):
-    __tablename__ = 'car_type'
 
     model = Column(String(128), nullable=False)
 
@@ -62,18 +48,31 @@ class Call(Base):
     __tablename__ = 'call'
 
     patient_id = Column(Integer, ForeignKey('patient.id'), nullable=False)
-
-    status_id = Column(Integer, ForeignKey('status.id'), nullable=False)
-
-
-class Status(Base):
-    __tablename__ = 'status'
-
-    status_type_id = Column(Integer, ForeignKey('status_type.id'), nullable=False)
+    brigade_id = Column(Integer, ForeignKey('brigade.id'), nullable=True)
+    status_id = Column(Integer, ForeignKey('status_type.id'), nullable=False)
 
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now())
     end_at = Column(DateTime, nullable=True)
+
+
+class Brigade(Base):
+    __tablename__ = 'brigade'
+
+    start_time = Column(
+        DateTime,
+        server_default=func.now(),
+        server_onupdate=func.now(),
+        onupdate=datetime.datetime.now
+    )
+    end_time = Column(DateTime, server_default=func.now())
+
+
+class Brigade_xref_Worker(Base):
+    __tablename__ = 'brigade_xref_worker'
+
+    brigade_id = Column(Integer, ForeignKey('brigade.id'), nullable=False)
+    worker_id = Column(Integer, ForeignKey('worker.id'), nullable=False)
 
 
 class StatusType(Base):
@@ -100,10 +99,3 @@ class Symptom(Base):
     __tablename__ = 'symptom'
 
     name = Column(String(64), nullable=False)
-
-
-class Driver_xref_Call(Base):
-    __tablename__ = 'driver_xref_call'
-
-    call_id = Column(Integer, ForeignKey('call.id'), nullable=False)
-    driver_id = Column(Integer, ForeignKey('driver.id'), nullable=False)

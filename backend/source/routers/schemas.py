@@ -7,9 +7,15 @@ class ID:
 
 class PostScheme(BaseModel, ID):
     name: str
+    is_driver: bool
 
     class Config:
         from_attributes = True
+
+
+class PostSchemePatch(BaseModel):
+    name: str | None = None
+    is_driver: bool | None = None
 
 
 class HumanScheme(BaseModel):

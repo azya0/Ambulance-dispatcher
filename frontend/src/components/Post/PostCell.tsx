@@ -4,8 +4,13 @@ import config from "../../config";
 import { Post } from "./Post";
 
 
-function PostCell({ id, name }: Post) {
-    const [value, setValue] = useState(name);
+interface Prop {
+    post: Post
+}
+
+
+function PostCell({ post }: Prop) {
+    const [value, setValue] = useState(post.name);
     const [isInput, setInput] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     
@@ -16,8 +21,8 @@ function PostCell({ id, name }: Post) {
 
     const keyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-            axios.patch(`${config.url}/personal/post/${id}`, null, {
-                params: {name: (event.target as HTMLInputElement).value}
+            axios.patch(`${config.url}/personal/post/${post.id}`, {
+                name: (event.target as HTMLInputElement).value
             }).then(response => {
                     setValue(response.data.name);
                     setInput(false);

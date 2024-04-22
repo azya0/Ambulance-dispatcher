@@ -1,12 +1,13 @@
 from functools import lru_cache
-from typing import Optional
 
 from pydantic import PostgresDsn, validator
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 
 
 class Settings(BaseSettings):
+    DEBUG: bool
+
     load_dotenv()
 
     HOST: str
@@ -16,13 +17,14 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_HOST: str
     POSTGRES_PORT: int
-    DEBUG: bool
 
     SQLALCHEMY_URL: str | None = None
 
     @validator('POSTGRES_HOST', pre=True)
     def set_db_host(cls, value, values):
         if values.get("DEBUG"):
+            if values.get("HOST") == '0.0.0.0':
+                return 'localhost'
             return values.get("HOST")
         return value
 

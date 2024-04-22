@@ -9,18 +9,19 @@ import PostNew from "./PostNew";
 export interface Post {
     id: number,
     name: string,
+    is_driver: boolean,
 }
 
 
 function PostPage() {
-    const [post, setPost] = useState<Array<Post>>([]);
+    const [post, setPost] = useState<Array<Post>>();
     const [isAddPost, setAddPost] = useState(false);
 
     useEffect(() => {
         axios.get(`${config.url}/personal/posts`).then((response) => setPost(response.data))
     }, []);
 
-    if (post.length === 0)
+    if (post === undefined)
         return null;
 
     return (
@@ -31,6 +32,7 @@ function PostPage() {
             <tr>
                 <th>id</th>
                 <th>Должность</th>
+                <th>Квалификация</th>
                 <th></th>
             </tr>
             </thead>
