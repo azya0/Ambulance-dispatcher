@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import and_, not_, select
 
-from db.models import Post, Worker
+from db.models import Brigade_xref_Worker, Post, Worker
 from db.engine import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -144,3 +144,13 @@ async def get_workers(session: AsyncSession = Depends(get_async_session)):
     workers = (await session.scalars(select(Worker).options(selectinload(Worker.post)))).all()
 
     return [WorkerScheme.model_validate(worker) for worker in workers]
+
+
+@router.get('/workers/free', response_model=list[WorkerScheme])
+async def get_free_workers(session: AsyncSession = Depends(get_async_session)):
+
+    request = select(Worker).outerjoin(Brigade_xref_Worker, Worker.id == Brigade_xref_Worker.worker_id).filter(
+        (Brigade_xref_Worker.id == None) | (Brigade_xref_Worker.active == False)).options(selectinload(Worker.post), )
+
+
+    return [WorkerScheme.model_validate(worker) for worker in (await session.scalars(request)).all()]

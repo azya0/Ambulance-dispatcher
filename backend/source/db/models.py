@@ -28,6 +28,8 @@ class Worker(Base, Human):
     post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
 
     post = relationship("Post", back_populates="workers", uselist=False)
+    brigade = relationship("Brigade", secondary='brigade_xref_worker', back_populates='workers', uselist=False)
+
 
 class Post(Base):
     __tablename__ = 'post'
@@ -65,7 +67,9 @@ class Brigade(Base):
         server_onupdate=func.now(),
         onupdate=datetime.datetime.now
     )
-    end_time = Column(DateTime, server_default=func.now())
+
+    end_time = Column(DateTime, nullable=True)
+    workers = relationship("Worker", secondary='brigade_xref_worker', back_populates='brigade', uselist=True)
 
 
 class Brigade_xref_Worker(Base):
@@ -73,6 +77,7 @@ class Brigade_xref_Worker(Base):
 
     brigade_id = Column(Integer, ForeignKey('brigade.id'), nullable=False)
     worker_id = Column(Integer, ForeignKey('worker.id'), nullable=False)
+    active = Column(Boolean, default=True)
 
 
 class StatusType(Base):

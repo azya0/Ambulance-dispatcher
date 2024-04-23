@@ -1,3 +1,4 @@
+import datetime
 from pydantic import BaseModel
 
 
@@ -39,6 +40,22 @@ class WorkerSchemePatch(BaseModel):
 class WorkerScheme(HumanScheme, ID):
     post: PostScheme
     is_ill: bool
+
+    class Config:
+        from_attributes = True
+
+
+class BrigadeSchemeRead(BaseModel):
+    workers: list[int]
+
+
+class BrigadeScheme(BaseModel):
+    id: int
+
+    start_time: datetime.datetime
+    end_time: datetime.datetime | None = None
+
+    workers: list[WorkerScheme]
 
     class Config:
         from_attributes = True
