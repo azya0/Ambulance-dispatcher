@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, joinedload
 
 from db.engine import get_async_session
-from db.models import Brigade, Brigade_xref_Worker, Worker
+from db.models import Brigade, Brigade_xref_Worker, Car, Worker
 from routers.schemas import BrigadeScheme, BrigadeSchemeRead, WorkerScheme
 
 
@@ -18,6 +18,11 @@ router = APIRouter(
 async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(get_async_session)):
     worker_shemas: list[WorkerScheme] = []
     has_driver = False
+
+    car = await session.get(Car, data.car_id)
+
+    if car is None:
+        raise HTTPException(404, 'wrong car id')
     
     for id in data.workers:
         worker = await session.get(Worker, id, options=(selectinload(Worker.post), ))
@@ -25,8 +30,7 @@ async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(
         if worker is None:
             raise HTTPException(404, 'wrong worker id')
         
-        already = await session.scalar(select(Brigade_xref_Worker).where(
-            (Brigade_xref_Worker.worker_id == id) & (Brigade_xref_Worker.active == True)))
+        already = await session.scalar(select(Brigade_xref_Worker).where((Brigade_xref_Worker.worker_id == id)))
 
         if already is not None:
             raise HTTPException(400, 'worker already used')
@@ -39,7 +43,7 @@ async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(
     if not has_driver:
         raise HTTPException(400, 'brigade has no drivers')
     
-    result = Brigade()
+    result = Brigade(car_id=car.id)
     
     session.add(result)
     await session.commit()
@@ -54,6 +58,7 @@ async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(
 
     return BrigadeScheme(
         id=result.id,
+        car=car,
         start_time=result.start_time,
         end_time=result.end_time,
         workers=worker_shemas
@@ -62,7 +67,7 @@ async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(
 
 @router.get('/by_id/{id}', response_model=BrigadeScheme)
 async def get_brigade_by_id(id: int, session: AsyncSession = Depends(get_async_session)):
-    data = await session.get(Brigade, id, options=(selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post)))
+    data = await session.get(Brigade, id, options=(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post)))
 
     if data is None:
         raise HTTPException(404, 'no brigade found')
@@ -72,7 +77,7 @@ async def get_brigade_by_id(id: int, session: AsyncSession = Depends(get_async_s
 
 @router.get('/all', response_model=list[BrigadeScheme])
 async def get_brigades(session: AsyncSession = Depends(get_async_session)):
-    request = select(Brigade).options(selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post))
+    request = select(Brigade).options(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post))
     result = (await session.scalars(request)).all()
 
     print(result)

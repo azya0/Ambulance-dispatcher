@@ -45,21 +45,14 @@ class Car(Base):
 
     model = Column(String(128), nullable=False)
 
-
-class Call(Base):
-    __tablename__ = 'call'
-
-    patient_id = Column(Integer, ForeignKey('patient.id'), nullable=False)
-    brigade_id = Column(Integer, ForeignKey('brigade.id'), nullable=True)
-    status_id = Column(Integer, ForeignKey('status_type.id'), nullable=False)
-
-    created_at = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, server_default=func.now())
-    end_at = Column(DateTime, nullable=True)
+    brigade = relationship("Brigade", back_populates="car", uselist=False)
 
 
 class Brigade(Base):
     __tablename__ = 'brigade'
+
+    call_id = Column(Integer, ForeignKey('call.id'), nullable=True, default=None)
+    car_id = Column(Integer, ForeignKey('car.id'), nullable=False)
 
     start_time = Column(
         DateTime,
@@ -69,6 +62,8 @@ class Brigade(Base):
     )
 
     end_time = Column(DateTime, nullable=True)
+
+    car = relationship("Car", back_populates="brigade", uselist=False)
     workers = relationship("Worker", secondary='brigade_xref_worker', back_populates='brigade', uselist=True)
 
 
@@ -77,30 +72,27 @@ class Brigade_xref_Worker(Base):
 
     brigade_id = Column(Integer, ForeignKey('brigade.id'), nullable=False)
     worker_id = Column(Integer, ForeignKey('worker.id'), nullable=False)
-    active = Column(Boolean, default=True)
 
 
-class StatusType(Base):
-    __tablename__ = 'status_type'
+class Call(Base):
+    __tablename__ = 'call'
 
-    name = Column(String(32), nullable=False)
+    patient_id = Column(Integer, ForeignKey('patient.id'), nullable=False)
+    status_id = Column(Integer, ForeignKey('status_type.id'), nullable=False)
+
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now())
+    end_at = Column(DateTime, nullable=True)
 
 
 class Patient(Base, Human):
     __tablename__ = 'patient'
 
-    adress = Column(String(128), nullable=True)
+    address = Column(String(256), nullable=False)
+    descriptions = Column(String(512), nullable=False)
 
 
-class Patient_xref_Symptom(Base):
-    __tablename__ = 'patient_xref_symptom'
+class StatusType(Base):
+    __tablename__ = 'status_type'
 
-    patient_id = Column(Integer, ForeignKey('patient.id'), nullable=False)
-    symptom_id = Column(Integer, ForeignKey('symptom.id'), nullable=False)
-    call_id = Column(Integer, ForeignKey('call.id'), nullable=False)
-
-
-class Symptom(Base):
-    __tablename__ = 'symptom'
-
-    name = Column(String(64), nullable=False)
+    name = Column(String(32), nullable=False, unique=True)

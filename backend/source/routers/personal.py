@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import and_, not_, select
+from sqlalchemy import select
 
 from db.models import Brigade_xref_Worker, Post, Worker
 from db.engine import get_async_session
@@ -85,7 +85,7 @@ async def add_worker(data: WorkerSchemeRead, session: AsyncSession = Depends(get
     if post is None:
         raise HTTPException(404, f'post with id {data.post_id} not found')
     
-    worker = Worker(**data.dict())
+    worker = Worker(**data.model_dump())
 
     session.add(worker)
     await session.commit()
@@ -150,7 +150,7 @@ async def get_workers(session: AsyncSession = Depends(get_async_session)):
 async def get_free_workers(session: AsyncSession = Depends(get_async_session)):
 
     request = select(Worker).outerjoin(Brigade_xref_Worker, Worker.id == Brigade_xref_Worker.worker_id).filter(
-        (Brigade_xref_Worker.id == None) | (Brigade_xref_Worker.active == False)).options(selectinload(Worker.post), )
+        (Brigade_xref_Worker.id == None)).options(selectinload(Worker.post), )
 
 
     return [WorkerScheme.model_validate(worker) for worker in (await session.scalars(request)).all()]

@@ -45,13 +45,61 @@ class WorkerScheme(HumanScheme, ID):
         from_attributes = True
 
 
+class CarSchemeRead(BaseModel):
+    model: str
+
+
+class CarScheme(CarSchemeRead, ID):
+    class Config:
+        from_attributes = True
+
+
 class BrigadeSchemeRead(BaseModel):
     workers: list[int]
+    car_id: int
+
+
+class StatusSchemeRead(BaseModel):
+    name: str
+
+
+class StatusScheme(StatusSchemeRead, ID):
+    class Config:
+        from_attributes = True
+
+
+class PatientSchemeRead(HumanScheme):
+    address: str
+    descriptions: str
+
+
+class PatientScheme(PatientSchemeRead, ID):
+    class Config:
+        from_attributes = True
+
+
+class CallSchemeRead(BaseModel):
+    patient: PatientSchemeRead
+    status: StatusScheme
+
+
+class CallScheme(BaseModel, ID):
+    status: StatusScheme
+    patient: PatientScheme
+
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+    end_at: datetime.datetime | None = None
+
+    class Config:
+        from_attributes = True
 
 
 class BrigadeScheme(BaseModel):
     id: int
 
+    car: CarScheme
+    call: CallScheme | None = None
     start_time: datetime.datetime
     end_time: datetime.datetime | None = None
 
