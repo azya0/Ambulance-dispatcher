@@ -4,9 +4,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from config import get_settings
 from db.engine import get_async_session
 from db.models import Call, Patient, StatusType
-from routers.schemas import CallScheme, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
+from routers.schemas import CallPatchScheme, CallScheme, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
 
 
 router = APIRouter(
@@ -97,3 +98,44 @@ async def post_call(data: CallSchemeRead, session: AsyncSession = Depends(get_as
     await session.refresh(call)
 
     return CallScheme(**vars(call), patient=patient, status=status)
+
+
+@router.get('/calls', response_model=list[CallScheme])
+async def get_calls(session: AsyncSession = Depends(get_async_session)):
+    return (await session.scalars(select(Call).options(selectinload(Call.patient), selectinload(Call.status), ))).all()
+
+
+@router.patch('/call/{call_id}', response_model=CallScheme)
+async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession = Depends(get_async_session)):
+    result = await session.get(Call, call_id, options=(selectinload(Call.patient), selectinload(Call.status), ))
+
+    if data.descriptions is not None:
+        result.patient.descriptions = data.descriptions
+
+        session.add(result.patient)
+        await session.commit()
+        await session.refresh(result.patient)
+
+    if data.status_id is not None:
+        status = await session.get(StatusType, data.status_id)
+
+        if status is None:
+            raise HTTPException(404, 'wrong status id')
+        
+        result.status_id = status.id
+        result.status = status
+    
+    session.add(result)
+    await session.commit()
+    await session.refresh(result)
+
+    return result
+
+@router.delete('/call/close/{call_id}')
+async def close_call(call_id: int, session: AsyncSession = Depends(get_async_session)):
+    closed = await session.get(Call, call_id, options=(selectinload(Call.patient, )))
+
+    patient = closed.patient
+
+    await session.delete(closed)
+    await session.delete(patient)

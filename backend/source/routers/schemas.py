@@ -109,6 +109,11 @@ class CallScheme(BaseModel, ID):
         from_attributes = True
 
 
+class CallPatchScheme(BaseModel):
+    descriptions: str | None = None
+    status_id: int | None = None
+
+
 class BrigadeScheme(BaseModel):
     id: int
 

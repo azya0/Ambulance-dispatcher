@@ -84,6 +84,7 @@ class Call(Base):
     updated_at = Column(DateTime, server_default=func.now())
     end_at = Column(DateTime, nullable=True)
 
+    patient = relationship("Patient", back_populates="call", uselist=False)
     status = relationship("StatusType", back_populates="calls", uselist=False)
 
 
@@ -92,6 +93,8 @@ class Patient(Base, Human):
 
     address = Column(String(256), nullable=False)
     descriptions = Column(String(512), nullable=False)
+
+    call = relationship("Call", back_populates="patient", uselist=False)
 
 
 class StatusType(Base):
