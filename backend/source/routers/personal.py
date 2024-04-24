@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 
 from db.models import Brigade_xref_Worker, Post, Worker
 from db.engine import get_async_session
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 from routers.schemas import PostScheme, PostSchemePatch, WorkerScheme, WorkerSchemePatch, WorkerSchemeRead
 
 router = APIRouter(
@@ -152,6 +152,5 @@ async def get_free_workers(session: AsyncSession = Depends(get_async_session)):
     request = select(Worker).where(Worker.is_ill == False).outerjoin(
         Brigade_xref_Worker, Worker.id == Brigade_xref_Worker.worker_id).filter(
         (Brigade_xref_Worker.id == None)).options(selectinload(Worker.post), )
-
 
     return [WorkerScheme.model_validate(worker) for worker in (await session.scalars(request)).all()]

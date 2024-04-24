@@ -2,7 +2,6 @@ import axios from "axios";
 import { Car } from "./Cars";
 import PostCell from "./CarsCell";
 import config from "../../config";
-import { useState } from "react";
 
 interface Prop {
     car: Car,

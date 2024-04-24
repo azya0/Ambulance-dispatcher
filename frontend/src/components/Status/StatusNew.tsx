@@ -1,25 +1,27 @@
 import axios from "axios";
 import { useEffect, useRef } from "react";
-import { Car } from "./Cars";
+import { Status } from "./Status";
 import config from "../../config";
 
+
 interface Prop {
-    cars: Array<Car>;
-    setCars: (data: Array<Car>) => void;
+    statuses: Array<Status>;
+    setStatuses: (data: Array<Status>) => void;
     setEnable: (data: boolean) => void;
 }
 
-function CarsNew({ cars, setCars, setEnable }: Prop) {
+
+function StatusNew({ statuses, setStatuses, setEnable }: Prop) {
     const InputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => InputRef.current?.focus(), []);
 
     const keyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-            axios.post(`${config.url}/car`, {
-                model: (event.target as HTMLInputElement).value}
+            axios.post(`${config.url}/call/status`, {
+                name: (event.target as HTMLInputElement).value}
             ).then(response => {
-                setCars([...cars, response.data]);
+                setStatuses([...statuses, response.data]);
                 setEnable(false);
             });
         }
@@ -34,4 +36,4 @@ function CarsNew({ cars, setCars, setEnable }: Prop) {
     );
 }
 
-export default CarsNew;
+export default StatusNew;

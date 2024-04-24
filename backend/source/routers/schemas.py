@@ -75,6 +75,13 @@ class StatusScheme(StatusSchemeRead, ID):
         from_attributes = True
 
 
+class StatusSchemeFull(StatusSchemeRead, ID):
+    used: bool
+
+    class Config:
+        from_attributes = True
+
+
 class PatientSchemeRead(HumanScheme):
     address: str
     descriptions: str

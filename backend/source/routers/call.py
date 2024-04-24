@@ -2,10 +2,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from db.engine import get_async_session
 from db.models import Call, Patient, StatusType
-from routers.schemas import CallScheme, CallSchemeRead, StatusScheme, StatusSchemeRead
+from routers.schemas import CallScheme, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
 
 
 router = APIRouter(
@@ -42,12 +43,22 @@ async def get_statuses(session: AsyncSession = Depends(get_async_session)):
     return [StatusScheme.model_validate(data) for data in result]
 
 
+@router.get('/statuses/full', response_model=list[StatusSchemeFull])
+async def get_statuses(session: AsyncSession = Depends(get_async_session)):
+    result = (await session.scalars(select(StatusType).options(selectinload(StatusType.calls), ))).all()
+
+    return [StatusSchemeFull(**vars(data), used=bool(data.calls)) for data in result]
+
+
 @router.delete('/status/{id}')
 async def delete_status(id: int, session: AsyncSession = Depends(get_async_session)):
-    result = await session.get(StatusType, id)
+    result = await session.get(StatusType, id, options=(selectinload(StatusType.calls), ))
 
     if result is None:
         raise HTTPException(404, 'no status with such id')
+
+    if result.calls:
+        raise HTTPException(409, 'status is uses in call')
 
     await session.delete(result)
 

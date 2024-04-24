@@ -10,6 +10,7 @@ import Main from './components/Main';
 import Post from './components/Post/Post';
 import Cars from './components/Cars/Cars';
 import './css/style.css';
+import StatusPage from './components/Status/Status';
 
 
 const router = [
@@ -35,11 +36,15 @@ const router = [
         element: <Cars/>
       },
       {
-        path: 'call',
-        element: <Personal/>
+        path: 'status',
+        element: <StatusPage/>
       },
       {
         path: 'brigade',
+        element: <Personal/>
+      },
+      {
+        path: 'call',
         element: <Personal/>
       },
       {
