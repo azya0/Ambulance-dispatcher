@@ -11,6 +11,8 @@ import Post from './components/Post/Post';
 import Cars from './components/Cars/Cars';
 import './css/style.css';
 import StatusPage from './components/Status/Status';
+import CallPage from './components/Call/Call';
+import BrigadePage from './components/Brigade/Brigade';
 
 
 const router = [
@@ -40,12 +42,12 @@ const router = [
         element: <StatusPage/>
       },
       {
-        path: 'brigade',
-        element: <Personal/>
+        path: 'call',
+        element: <CallPage/>
       },
       {
-        path: 'call',
-        element: <Personal/>
+        path: 'brigade',
+        element: <BrigadePage/>
       },
       {
         path: 'graph',

@@ -65,6 +65,7 @@ class Brigade(Base):
 
     car = relationship("Car", back_populates="brigade", uselist=False)
     workers = relationship("Worker", secondary='brigade_xref_worker', back_populates='brigade', uselist=True)
+    call = relationship("Call", back_populates="brigade", uselist=False)
 
 
 class Brigade_xref_Worker(Base):
@@ -86,6 +87,7 @@ class Call(Base):
 
     patient = relationship("Patient", back_populates="call", uselist=False)
     status = relationship("StatusType", back_populates="calls", uselist=False)
+    brigade = relationship("Brigade", back_populates="call", uselist=False)
 
 
 class Patient(Base, Human):

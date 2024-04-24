@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from db.engine import get_async_session
 from db.models import Brigade, Brigade_xref_Worker, Car, Worker
-from routers.schemas import BrigadeScheme, BrigadeSchemeRead, WorkerScheme
+from routers.schemas import BrigadeSchemeFull, BrigadeSchemeRead, WorkerScheme
 
 
 router = APIRouter(
@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.post('', response_model=BrigadeScheme)
+@router.post('', response_model=BrigadeSchemeFull)
 async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(get_async_session)):
     worker_shemas: list[WorkerScheme] = []
     has_driver = False
@@ -56,7 +56,7 @@ async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(
     
     print(worker_shemas)
 
-    return BrigadeScheme(
+    return BrigadeSchemeFull(
         id=result.id,
         car=car,
         start_time=result.start_time,
@@ -65,24 +65,24 @@ async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(
     )
 
 
-@router.get('/by_id/{id}', response_model=BrigadeScheme)
+@router.get('/by_id/{id}', response_model=BrigadeSchemeFull)
 async def get_brigade_by_id(id: int, session: AsyncSession = Depends(get_async_session)):
     data = await session.get(Brigade, id, options=(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post)))
 
     if data is None:
         raise HTTPException(404, 'no brigade found')
     
-    return BrigadeScheme.model_validate(data)
+    return BrigadeSchemeFull.model_validate(data)
 
 
-@router.get('/all', response_model=list[BrigadeScheme])
+@router.get('/all', response_model=list[BrigadeSchemeFull])
 async def get_brigades(session: AsyncSession = Depends(get_async_session)):
     request = select(Brigade).options(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post))
     result = (await session.scalars(request)).all()
 
     print(result)
 
-    return [BrigadeScheme.model_validate(data) for data in result]
+    return [BrigadeSchemeFull.model_validate(data) for data in result]
 
 
 @router.delete('/by_id/{id}')

@@ -6,7 +6,7 @@ from sqlalchemy.orm import selectinload
 
 from config import get_settings
 from db.engine import get_async_session
-from db.models import Call, Patient, StatusType
+from db.models import Brigade, Call, Patient, StatusType
 from routers.schemas import CallPatchScheme, CallScheme, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
 
 
@@ -102,12 +102,12 @@ async def post_call(data: CallSchemeRead, session: AsyncSession = Depends(get_as
 
 @router.get('/calls', response_model=list[CallScheme])
 async def get_calls(session: AsyncSession = Depends(get_async_session)):
-    return (await session.scalars(select(Call).options(selectinload(Call.patient), selectinload(Call.status), ))).all()
+    return (await session.scalars(select(Call).options(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), ))).all()
 
 
 @router.patch('/call/{call_id}', response_model=CallScheme)
 async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession = Depends(get_async_session)):
-    result = await session.get(Call, call_id, options=(selectinload(Call.patient), selectinload(Call.status), ))
+    result = await session.get(Call, call_id, options=(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), ))
 
     if data.descriptions is not None:
         result.patient.descriptions = data.descriptions
@@ -133,7 +133,14 @@ async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession 
 
 @router.delete('/call/close/{call_id}')
 async def close_call(call_id: int, session: AsyncSession = Depends(get_async_session)):
-    closed = await session.get(Call, call_id, options=(selectinload(Call.patient, )))
+    closed = await session.get(Call, call_id, options=(selectinload(Call.patient), selectinload(Call.brigade), ))
+
+    if closed.brigade is not None:
+        brigade = await session.get(Brigade, closed.brigade.id)
+        brigade.call_id = None
+        
+        session.add(brigade)
+        await session.commit()
 
     patient = closed.patient
 

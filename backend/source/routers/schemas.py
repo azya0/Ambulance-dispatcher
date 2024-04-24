@@ -97,9 +97,24 @@ class CallSchemeRead(BaseModel):
     status: StatusScheme
 
 
+class BrigadeScheme(BaseModel):
+    id: int
+
+    car: CarScheme
+    start_time: datetime.datetime
+    end_time: datetime.datetime | None = None
+
+    workers: list[WorkerScheme]
+
+    class Config:
+        from_attributes = True
+
+
 class CallScheme(BaseModel, ID):
     status: StatusScheme
     patient: PatientScheme
+
+    brigade: BrigadeScheme | None = None
 
     created_at: datetime.datetime
     updated_at: datetime.datetime
@@ -114,15 +129,5 @@ class CallPatchScheme(BaseModel):
     status_id: int | None = None
 
 
-class BrigadeScheme(BaseModel):
-    id: int
-
-    car: CarScheme
+class BrigadeSchemeFull(BrigadeScheme):
     call: CallScheme | None = None
-    start_time: datetime.datetime
-    end_time: datetime.datetime | None = None
-
-    workers: list[WorkerScheme]
-
-    class Config:
-        from_attributes = True

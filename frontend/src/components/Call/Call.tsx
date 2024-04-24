@@ -1,14 +1,18 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import config from "../../config";
+import CallCard from "./CallCard";
 
 
-export interface Status {
+export interface Call {
+    id: number,
     status: {
         id: number,
         name: string,
     },
 
-    parient: {
+    patient: {
+        id: number,
         address: string,
         descriptions: string,
 
@@ -24,10 +28,12 @@ export interface Status {
 
 
 function CallPage() {
-    const [calls, setCalls] = useState<Status>();
+    const [calls, setCalls] = useState<Array<Call>>();
 
     useEffect(() => {
-        axios
+        axios.get(`${config.url}/call/calls`).then(response =>
+            setCalls(response.data.sort((value1: Call, value2: Call) => value1.updated_at > value2.updated_at ? 1 : -1))
+        );
     }, []);
 
     if (calls === undefined)
@@ -35,6 +41,9 @@ function CallPage() {
     
     return (
         <>
+        <div id='call-container'>
+            { calls.map(value => <CallCard key={value.id} data={value}/>) }
+        </div>
         </>
     )
 }
