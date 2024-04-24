@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from db.engine import get_async_session
 from db.models import Brigade, Car
-from routers.schemas import CarScheme, CarSchemeRead
+from routers.schemas import CarFullScheme, CarScheme, CarSchemeRead
 
 
 router = APIRouter(
@@ -48,6 +49,11 @@ async def delete_car(id: int, session: AsyncSession = Depends(get_async_session)
     if result is None:
         raise HTTPException(404, 'no car with such id')
 
+    brigade = await session.scalar(select(Brigade).where(Brigade.car_id == id))
+
+    if brigade is not None:
+        raise HTTPException(409, 'brigade use car')
+
     await session.delete(result)
 
 
@@ -61,7 +67,7 @@ async def get_car(id: int, data: CarSchemeRead, session: AsyncSession = Depends(
     result.model = data.model
 
     session.add(result)
-    await session.commit(result)
+    await session.commit()
     await session.refresh(result)
 
     return CarScheme.model_validate(result)
@@ -74,3 +80,10 @@ async def get_free_cars(session: AsyncSession = Depends(get_async_session)):
     result = (await session.scalars(request)).all()
 
     return result
+
+
+@router.get('/full/all', response_model=list[CarFullScheme])
+async def get_all_cars_full(session: AsyncSession = Depends(get_async_session)):
+    result = (await session.scalars(select(Car).options(selectinload(Car.brigade), ))).all()
+
+    return [CarFullScheme(**vars(data), used=False if data.brigade is None else True) for data in result]

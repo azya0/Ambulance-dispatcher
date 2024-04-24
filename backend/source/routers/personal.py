@@ -149,7 +149,8 @@ async def get_workers(session: AsyncSession = Depends(get_async_session)):
 @router.get('/workers/free', response_model=list[WorkerScheme])
 async def get_free_workers(session: AsyncSession = Depends(get_async_session)):
 
-    request = select(Worker).outerjoin(Brigade_xref_Worker, Worker.id == Brigade_xref_Worker.worker_id).filter(
+    request = select(Worker).where(Worker.is_ill == False).outerjoin(
+        Brigade_xref_Worker, Worker.id == Brigade_xref_Worker.worker_id).filter(
         (Brigade_xref_Worker.id == None)).options(selectinload(Worker.post), )
 
 

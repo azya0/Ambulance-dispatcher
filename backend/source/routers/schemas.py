@@ -54,6 +54,13 @@ class CarScheme(CarSchemeRead, ID):
         from_attributes = True
 
 
+class CarFullScheme(CarSchemeRead, ID):
+    used: bool
+
+    class Config:
+        from_attributes = True
+
+
 class BrigadeSchemeRead(BaseModel):
     workers: list[int]
     car_id: int

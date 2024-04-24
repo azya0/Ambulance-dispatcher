@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import Personal from './components/Personal/Personal';
 import Main from './components/Main';
 import Post from './components/Post/Post';
+import Cars from './components/Cars/Cars';
 import './css/style.css';
 
 
@@ -31,7 +32,7 @@ const router = [
       },
       {
         path: 'cars',
-        element: <Personal/>
+        element: <Cars/>
       },
       {
         path: 'call',
