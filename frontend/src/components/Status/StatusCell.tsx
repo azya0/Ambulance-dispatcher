@@ -24,7 +24,7 @@ function CarCell({ status }: Prop) {
             axios.patch(`${config.url}/call/status/${status.id}`, {
                 name: (event.target as HTMLInputElement).value
             }).then(response => {
-                    setValue(response.data.model);
+                    setValue(response.data.name);
                     setInput(false);
             });
         }

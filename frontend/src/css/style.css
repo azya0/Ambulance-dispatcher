@@ -319,7 +319,8 @@ tfoot:hover {
 }
 
 #add-worker,
-#add-post {
+#add-post,
+#add-call {
     left: 12.5%;
     top: 12.5%;
     z-index: 1;
@@ -333,7 +334,8 @@ tfoot:hover {
 }
 
 #add-worker .cross,
-#add-post .cross {
+#add-post .cross,
+#add-call .cross {
     font-size: 25px;
     position: inherit;
     top: 3.5%;
@@ -342,12 +344,14 @@ tfoot:hover {
 }
 
 #add-worker .cross:hover,
-#add-post .cross:hover {
+#add-post .cross:hover,
+#add-call .cross:hover {
     animation: rotatation 1s;
 }
 
 #add-worker form,
-#add-post form {
+#add-post form,
+#add-call form {
     margin: 4% 0;
     padding: 0 4%;
     border: 5px solid var(--main-bg-color);
@@ -357,11 +361,13 @@ tfoot:hover {
     justify-content: space-between;
 }
 
-#add-worker form h1 {
+#add-worker form h1,
+#add-call form h1 {
     margin: 1.5% 0 1.5% 0;
 }
 
-#add-worker form input {
+#add-worker form input,
+#add-call form input {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -376,12 +382,14 @@ tfoot:hover {
     box-sizing: border-box;
 }
 
-#add-worker form input:focus {
+#add-worker form input:focus,
+#add-call form input:focus {
     outline: 0;
     height: 3.5rem;
 }
 
-#add-worker select {
+#add-worker select,
+#add-call select {
     margin: 0;
     padding: 0;
     width: 100%;
@@ -396,20 +404,19 @@ tfoot:hover {
     box-sizing: border-box;
 }
 
-#add-worker form select:focus {
+#add-worker form select:focus,
+#add-call form select:focus {
     outline: 0;
     height: 3.5rem;
 }
 
-#add-worker form select option[data-checked] {
-    background-color: red;
-}
-
-#add-worker form div:last-child {
+#add-worker form div:last-child,
+#add-call form div:last-child {
     margin: 2.5rem 0;
 }
 
-#add-worker form button {
+#add-worker form button,
+#add-call form button {
     border: none;
     height: 2.5rem;
     width: 100%;
@@ -418,6 +425,15 @@ tfoot:hover {
     color: var(--main-color);
     font-size: 25px;
     font-weight: bold;
+}
+
+#add-call form h1,
+#add-call form h2 {
+    margin: .33rem 0 0 0;
+}
+
+#add-call form {
+    margin: 2% 0;
 }
 
 #logo-container {
@@ -491,22 +507,45 @@ tfoot:hover {
 
 #call-container {
     display: flex;
-    padding: 5% 5% 0 5%;
+    padding: 0 5%;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    overflow-y: scroll;
+    height: 95%;
 }
 
 .call-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     background: var(--main-color);
     color: var(--main-bg-color);
     border: 2px solid var(--main-color);
+    margin: 1.5rem;
+    font-size: 20px;
     box-shadow: 10px 10px 5px var(--main-bg-shadow);
     transition: 0.5s;
+}
+
+.call-card .cross {
+    opacity: 0;
+    position: absolute;
+    background: var(--color-red);
+    right: -20px;
+    top: -20px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    transition: 0.5s;
+    cursor: pointer;
 }
 
 .call-card:hover {
     box-shadow: 15px 15px 7px var(--main-bg-shadow);
     transform: translateY(-5px);
+}
+
+.call-card:hover .cross {
+    opacity: 1;
 }
 
 .call-card .patient, .call-card .info {
@@ -515,9 +554,43 @@ tfoot:hover {
     margin: .5rem;
 }
 
+.call-card .info b {
+    margin-bottom: .5rem;
+}
+
+.call-card .info b:last-child {
+    margin-bottom: 0;
+}
+
 .call-card .call-status {
     padding: .5rem;
 
     background-color: var(--main-bg-color);
     color: var(--main-color);
+}
+
+.call-card .call-status select {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    border: none;
+    padding: 0 2% 0 2%;
+    font-size: 20px;
+    background: var(--main-bg-color);
+    font-weight: bold;
+    color: var(--main-color);
+    transition: .5s;
+    box-sizing: border-box;
+}
+
+.call-card .call-status select:focus {
+    outline: none;
+}
+
+#call-main-container {
+    height: 95%;
+}
+
+#call-main-container #table-footer {
+    height: 5%;
 }

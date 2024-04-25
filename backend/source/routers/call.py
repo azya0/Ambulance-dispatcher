@@ -1,10 +1,10 @@
 
+import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from config import get_settings
 from db.engine import get_async_session
 from db.models import Brigade, Call, Patient, StatusType
 from routers.schemas import CallPatchScheme, CallScheme, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
@@ -73,7 +73,7 @@ async def get_status(id: int, data: StatusSchemeRead, session: AsyncSession = De
     
     result.name = data.name
     session.add(result)
-    await session.commit(result)
+    await session.commit()
     await session.refresh(result)
 
     return StatusScheme.model_validate(result)
@@ -102,12 +102,13 @@ async def post_call(data: CallSchemeRead, session: AsyncSession = Depends(get_as
 
 @router.get('/calls', response_model=list[CallScheme])
 async def get_calls(session: AsyncSession = Depends(get_async_session)):
-    return (await session.scalars(select(Call).options(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), ))).all()
+    return (await session.scalars(select(Call).where(Call.end_at == None).options(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), ))).all()
 
 
 @router.patch('/call/{call_id}', response_model=CallScheme)
 async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession = Depends(get_async_session)):
     result = await session.get(Call, call_id, options=(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), ))
+    has_change = False
 
     if data.descriptions is not None:
         result.patient.descriptions = data.descriptions
@@ -115,6 +116,8 @@ async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession 
         session.add(result.patient)
         await session.commit()
         await session.refresh(result.patient)
+
+        has_change = True
 
     if data.status_id is not None:
         status = await session.get(StatusType, data.status_id)
@@ -124,10 +127,14 @@ async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession 
         
         result.status_id = status.id
         result.status = status
-    
-    session.add(result)
-    await session.commit()
-    await session.refresh(result)
+
+        has_change = True
+
+    if has_change:
+        result.updated_at = datetime.datetime.now()
+        session.add(result)
+        await session.commit()
+        await session.refresh(result)
 
     return result
 
@@ -142,7 +149,7 @@ async def close_call(call_id: int, session: AsyncSession = Depends(get_async_ses
         session.add(brigade)
         await session.commit()
 
-    patient = closed.patient
-
-    await session.delete(closed)
-    await session.delete(patient)
+    closed.updated_at = closed.end_at = datetime.datetime.now()
+    
+    session.add(closed)
+    await session.commit()

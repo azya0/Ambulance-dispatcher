@@ -49,14 +49,6 @@ const router = [
         path: 'brigade',
         element: <BrigadePage/>
       },
-      {
-        path: 'graph',
-        element: <Personal/>
-      },
-      {
-        path: 'statistic',
-        element: <Personal/>
-      },
     ]
   }
 ];
