@@ -43,7 +43,7 @@ function StatusPage() {
         </table>
         <CSSTransition in={!isAddStatuses} classNames='disappear-animation' timeout={500} unmountOnExit>
             <div>
-                <div id='table-footer' onClick={() => setAddStatuses(true)}>добавить новую машину</div>
+                <div id='table-footer' onClick={() => setAddStatuses(true)}>добавить новый статус</div>
             </div>
         </CSSTransition>
         </div>
