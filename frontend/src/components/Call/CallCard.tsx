@@ -55,7 +55,7 @@ function CallCard({ data, calls, statuses, setCalls }: Prop) {
             Адрес:
             <b>{ data.patient.address }</b>
             Описание:
-            <b>{ data.patient.descriptions }</b>
+            <b className="description">{ data.patient.descriptions }</b>
             Обслуживается:
             <b>{ data.brigade === null ? "Нет" : "Да" }</b>
         </div>

@@ -515,6 +515,7 @@ tfoot:hover {
 }
 
 .call-card {
+    max-width: 40vw;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -525,6 +526,11 @@ tfoot:hover {
     font-size: 20px;
     box-shadow: 10px 10px 5px var(--main-bg-shadow);
     transition: 0.5s;
+    height: max-content;
+}
+
+.call-card .info .description {
+    word-wrap: break-word;
 }
 
 .call-card .cross {
