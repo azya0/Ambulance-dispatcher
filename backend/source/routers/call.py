@@ -107,17 +107,17 @@ async def get_calls(session: AsyncSession = Depends(get_async_session)):
 
 @router.patch('/call/{call_id}', response_model=CallScheme)
 async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession = Depends(get_async_session)):
-    result = await session.get(Call, call_id, options=(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), ))
-    has_change = False
+    result = await session.get(Call, call_id, options=(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), )) 
 
-    if data.descriptions is not None:
-        result.patient.descriptions = data.descriptions
+    if data.patient is not None:
+        patient = result.patient
 
-        session.add(result.patient)
+        for key in (dumped_data := data.patient.model_dump(exclude_none=True)):
+            setattr(patient, key, dumped_data[key])
+
+        session.add(patient)
         await session.commit()
         await session.refresh(result.patient)
-
-        has_change = True
 
     if data.status_id is not None:
         status = await session.get(StatusType, data.status_id)
@@ -128,15 +128,13 @@ async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession 
         result.status_id = status.id
         result.status = status
 
-        has_change = True
-
-    if has_change:
-        result.updated_at = datetime.datetime.now()
-        session.add(result)
-        await session.commit()
-        await session.refresh(result)
+    result.updated_at = datetime.datetime.now()
+    session.add(result)
+    await session.commit()
+    await session.refresh(result)
 
     return result
+
 
 @router.delete('/call/close/{call_id}')
 async def close_call(call_id: int, session: AsyncSession = Depends(get_async_session)):

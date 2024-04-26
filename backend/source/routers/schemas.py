@@ -92,9 +92,24 @@ class PatientScheme(PatientSchemeRead, ID):
         from_attributes = True
 
 
+
+class PatientSchemePatch(BaseModel):
+    first_name: str | None = None
+    second_name: str | None = None
+    patronymic: str | None = None
+
+    address: str | None = None
+    descriptions: str | None = None
+
+
 class CallSchemeRead(BaseModel):
     patient: PatientSchemeRead
     status: StatusScheme
+
+
+class CallPatchScheme(BaseModel):
+    patient: PatientSchemePatch | None
+    status_id: int | None = None
 
 
 class BrigadeScheme(BaseModel):
@@ -122,11 +137,6 @@ class CallScheme(BaseModel, ID):
 
     class Config:
         from_attributes = True
-
-
-class CallPatchScheme(BaseModel):
-    descriptions: str | None = None
-    status_id: int | None = None
 
 
 class BrigadeSchemeFull(BrigadeScheme):
