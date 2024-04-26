@@ -514,6 +514,20 @@ tfoot:hover {
     height: 95%;
 }
 
+#call-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+#call-container::-webkit-scrollbar-track {
+    background: var(--main-bg-color);
+}
+
+#call-container::-webkit-scrollbar-thumb {
+    background-color: var(--main-color);
+    border-radius: 20px;
+    border: 3px solid var(--main-bg-color);
+}
+
 .call-card {
     max-width: 40vw;
     position: relative;
@@ -527,9 +541,14 @@ tfoot:hover {
     box-shadow: 10px 10px 5px var(--main-bg-shadow);
     transition: 0.5s;
     height: max-content;
+    box-sizing: border-box;
 }
 
-.call-card .info .description {
+.call-card .info {
+    overflow: hidden;
+}
+
+.call-card .info b:nth-child(2) {
     word-wrap: break-word;
 }
 
@@ -568,6 +587,10 @@ tfoot:hover {
     margin-bottom: 0;
 }
 
+.call-card .info input {
+    width: 40vw;
+}
+
 .call-card .call-status {
     padding: .5rem;
 
@@ -591,6 +614,23 @@ tfoot:hover {
 
 .call-card .call-status select:focus {
     outline: none;
+}
+
+.call-card input {
+    border: none;
+    font-size: 19px;
+    background: var(--main-color);
+    color: var(--main-bg-color);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.call-card input:focus {
+    outline: none;
+}
+
+.call-card b:empty::after {
+    content: "\00a0";
 }
 
 #call-main-container {

@@ -108,7 +108,7 @@ class CallSchemeRead(BaseModel):
 
 
 class CallPatchScheme(BaseModel):
-    patient: PatientSchemePatch | None
+    patient: PatientSchemePatch | None = None
     status_id: int | None = None
 
 

@@ -3,6 +3,7 @@ import { Call } from "./Call";
 import config from "../../config";
 import { Status } from "../Status/Status";
 import { useState } from "react";
+import CallPatientField from "./CallPatientField";
 
 interface Prop {
     data: Call,
@@ -14,7 +15,13 @@ interface Prop {
 
 function CallCard({ data, calls, statuses, setCalls }: Prop) {
     const [isSelectStaus, setSelectStatus] = useState(false);
-    
+
+    const update = () => {
+        data.updated_at = new Date();
+        setCalls([data, ...calls.filter((value) => value.id !== data.id)]);
+    }
+    const date = (value: Date) => `${new Date(value).toLocaleString([], {timeZone:'Europe/Moscow'})}`;
+
     return (
     <>
     <div className="call-card">
@@ -32,7 +39,7 @@ function CallCard({ data, calls, statuses, setCalls }: Prop) {
                 axios.patch(`${config.url}/call/call/${data.id}`, {
                     status_id: value, 
                 }).then((response) => {
-                    setCalls([response.data, ...calls.filter(value => value.id != response.data.id)])
+                    setCalls([response.data, ...calls.filter(value => value.id !== response.data.id)])
                     setSelectStatus(false)
                 }
             )}} autoFocus={true} onBlur={() => setSelectStatus(false)}>
@@ -47,15 +54,19 @@ function CallCard({ data, calls, statuses, setCalls }: Prop) {
         </div>
         <div className="patient">
             Пациент:
-            <b>{ data.patient.second_name }</b>
-            <b>{ data.patient.first_name }</b>
-            <b>{ data.patient.patronymic }</b>
+            <CallPatientField id={data.id} field_name="second_name" field_value={data.patient.second_name} update={update}/>
+            <CallPatientField id={data.id} field_name="first_name" field_value={data.patient.first_name} update={update}/>
+            <CallPatientField id={data.id} field_name="patronymic" field_value={data.patient.patronymic} update={update}/>
         </div>
         <div className="info">
             Адрес:
-            <b>{ data.patient.address }</b>
+            <CallPatientField id={data.id} field_name="address" field_value={data.patient.address} update={update}/>
             Описание:
-            <b className="description">{ data.patient.descriptions }</b>
+            <CallPatientField id={data.id} field_name="descriptions" field_value={data.patient.descriptions} update={update}/>
+            Поступил:
+            <b>{ date(data.created_at) }</b>
+            Обновлен:
+            <b>{ date(data.updated_at) }</b>
             Обслуживается:
             <b>{ data.brigade === null ? "Нет" : "Да" }</b>
         </div>
