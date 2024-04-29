@@ -544,6 +544,14 @@ tfoot:hover {
     box-sizing: border-box;
 }
 
+.call-card div:nth-child(2),
+.call-card div:nth-child(3),
+.call-card select {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
 .call-card .info {
     overflow: hidden;
 }

@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from pydantic import PostgresDsn, validator
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 
 
 class Settings(BaseSettings):

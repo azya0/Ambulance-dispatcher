@@ -52,6 +52,9 @@ function CallCard({ data, calls, statuses, setCalls }: Prop) {
             : <b>{ data.status.name }</b>
             }
         </div>
+        <div>
+            <b>ID: { data.id }</b>
+        </div>
         <div className="patient">
             Пациент:
             <CallPatientField id={data.id} field_name="second_name" field_value={data.patient.second_name} update={update}/>

@@ -97,6 +97,9 @@ async def post_call(data: CallSchemeRead, session: AsyncSession = Depends(get_as
     await session.commit()
     await session.refresh(call)
 
+    print(datetime.datetime.now())
+    print(call.created_at)
+
     return CallScheme(**vars(call), patient=patient, status=status)
 
 

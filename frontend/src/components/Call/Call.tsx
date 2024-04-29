@@ -6,6 +6,29 @@ import { CSSTransition } from 'react-transition-group';
 import { Status } from "../Status/Status";
 
 
+export interface CallShort {
+    id: number,
+    status: {
+        id: number,
+        name: string,
+    },
+
+    patient: {
+        id: number,
+        address: string,
+        descriptions: string,
+
+        first_name: string,
+        second_name: string,
+        patronymic: string | null,
+    },
+
+    created_at: Date,
+    updated_at: Date,
+    end_at: Date,
+}
+
+
 export interface Call {
     id: number,
     status: {
@@ -21,11 +44,13 @@ export interface Call {
         first_name: string,
         second_name: string,
         patronymic: string | null,
-    }
+    },
 
     brigade: {
         id: number,
     } | null,
+
+    is_system_closed: boolean,
 
     created_at: Date,
     updated_at: Date,

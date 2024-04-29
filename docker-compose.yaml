@@ -28,8 +28,6 @@ services:
 
   backend:
     container_name: backend
-    environment:
-      TZ: Europe/Moscow
     build:
       context: ./backend
       dockerfile: Dockerfile

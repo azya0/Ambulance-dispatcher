@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, DateTime, func
 from sqlalchemy.orm import as_declarative, relationship
 
@@ -54,14 +52,8 @@ class Brigade(Base):
     call_id = Column(Integer, ForeignKey('call.id'), nullable=True, default=None)
     car_id = Column(Integer, ForeignKey('car.id'), nullable=False)
 
-    start_time = Column(
-        DateTime,
-        server_default=func.now(),
-        server_onupdate=func.now(),
-        onupdate=datetime.datetime.now
-    )
-
-    end_time = Column(DateTime, nullable=True)
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True), nullable=False)
 
     car = relationship("Car", back_populates="brigade", uselist=False)
     workers = relationship("Worker", secondary='brigade_xref_worker', back_populates='brigade', uselist=True)
@@ -81,9 +73,9 @@ class Call(Base):
     patient_id = Column(Integer, ForeignKey('patient.id'), nullable=False)
     status_id = Column(Integer, ForeignKey('status_type.id'), nullable=False)
 
-    created_at = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, server_default=func.now())
-    end_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now())
+    end_at = Column(DateTime(timezone=True), nullable=True)
 
     patient = relationship("Patient", back_populates="call", uselist=False)
     status = relationship("StatusType", back_populates="calls", uselist=False)
@@ -103,5 +95,6 @@ class StatusType(Base):
     __tablename__ = 'status_type'
 
     name = Column(String(32), nullable=False, unique=True)
+    is_system_closed = Column(Boolean, nullable=False, default=False)
 
     calls = relationship("Call", back_populates="status")

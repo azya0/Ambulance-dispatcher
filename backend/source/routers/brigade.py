@@ -43,7 +43,7 @@ async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(
     if not has_driver:
         raise HTTPException(400, 'brigade has no drivers')
     
-    result = Brigade(car_id=car.id)
+    result = Brigade(car_id=car.id, start_time=data.start_time, end_time=data.end_time)
     
     session.add(result)
     await session.commit()
@@ -53,8 +53,6 @@ async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(
         session.add(Brigade_xref_Worker(brigade_id=result.id, worker_id=id))
     
     await session.commit()
-    
-    print(worker_shemas)
 
     return BrigadeSchemeFull(
         id=result.id,
@@ -79,8 +77,6 @@ async def get_brigade_by_id(id: int, session: AsyncSession = Depends(get_async_s
 async def get_brigades(session: AsyncSession = Depends(get_async_session)):
     request = select(Brigade).options(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post))
     result = (await session.scalars(request)).all()
-
-    print(result)
 
     return [BrigadeSchemeFull.model_validate(data) for data in result]
 

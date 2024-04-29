@@ -64,6 +64,8 @@ class CarFullScheme(CarSchemeRead, ID):
 class BrigadeSchemeRead(BaseModel):
     workers: list[int]
     car_id: int
+    start_time: datetime.datetime
+    end_time: datetime.datetime
 
 
 class StatusSchemeRead(BaseModel):
@@ -117,8 +119,8 @@ class BrigadeScheme(BaseModel):
 
     car: CarScheme
     start_time: datetime.datetime
-    end_time: datetime.datetime | None = None
-
+    end_time: datetime.datetime
+    
     workers: list[WorkerScheme]
 
     class Config:
@@ -139,5 +141,17 @@ class CallScheme(BaseModel, ID):
         from_attributes = True
 
 
+class CallSchemeShort(BaseModel, ID):
+    status: StatusScheme
+    patient: PatientScheme
+
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+    end_at: datetime.datetime | None = None
+
+    class Config:
+        from_attributes = True
+
+
 class BrigadeSchemeFull(BrigadeScheme):
-    call: CallScheme | None = None
+    call: CallSchemeShort | None = None
