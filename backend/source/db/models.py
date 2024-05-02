@@ -54,6 +54,7 @@ class Brigade(Base):
 
     start_time = Column(DateTime(timezone=True), nullable=True)
     end_time = Column(DateTime(timezone=True), nullable=True)
+    rating = Column(Integer, default=0)
 
     car = relationship("Car", back_populates="brigade", uselist=False)
     workers = relationship("Worker", secondary='brigade_xref_worker', back_populates='brigade', uselist=True)
