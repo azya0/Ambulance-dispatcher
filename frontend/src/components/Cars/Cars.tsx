@@ -6,6 +6,13 @@ import config from "../../config";
 import CarsString from "./CarsString";
 import CarsNew from "./CarsNew";
 
+
+export interface CarShort {
+    id: number,
+    model: string,
+}
+
+
 export interface Car {
     id: number,
     model: string,

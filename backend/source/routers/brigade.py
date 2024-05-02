@@ -1,11 +1,12 @@
+import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from db.engine import get_async_session
-from db.models import Brigade, Brigade_xref_Worker, Car, Worker
-from routers.schemas import BrigadeSchemeFull, BrigadeSchemeRead, WorkerScheme
+from db.models import Brigade, Brigade_xref_Worker, Car, Worker, Call
+from routers.schemas import BrigadeSchemeFull, BrigadeSchemeFullShort, BrigadeSchemePatch, WorkerScheme
 
 
 router = APIRouter(
@@ -15,70 +16,110 @@ router = APIRouter(
 
 
 @router.post('', response_model=BrigadeSchemeFull)
-async def post_brigade(data: BrigadeSchemeRead, session: AsyncSession = Depends(get_async_session)):
-    worker_shemas: list[WorkerScheme] = []
-    has_driver = False
-
-    car = await session.get(Car, data.car_id)
-
-    if car is None:
-        raise HTTPException(404, 'wrong car id')
-    
-    for id in data.workers:
-        worker = await session.get(Worker, id, options=(selectinload(Worker.post), ))
-
-        if worker is None:
-            raise HTTPException(404, 'wrong worker id')
-        
-        already = await session.scalar(select(Brigade_xref_Worker).where((Brigade_xref_Worker.worker_id == id)))
-
-        if already is not None:
-            raise HTTPException(400, 'worker already used')
-        
-        if not has_driver and worker.post.is_driver:
-            has_driver = True
-
-        worker_shemas.append(WorkerScheme.model_validate(worker))
-    
-    if not has_driver:
-        raise HTTPException(400, 'brigade has no drivers')
-    
-    result = Brigade(car_id=car.id, start_time=data.start_time, end_time=data.end_time)
+async def post_brigade(session: AsyncSession = Depends(get_async_session)):
+    result = Brigade(start_time=datetime.datetime.now(), end_time=datetime.datetime.now())
     
     session.add(result)
     await session.commit()
     await session.refresh(result)
 
-    for id in data.workers:
-        session.add(Brigade_xref_Worker(brigade_id=result.id, worker_id=id))
-    
-    await session.commit()
-
     return BrigadeSchemeFull(
         id=result.id,
-        car=car,
         start_time=result.start_time,
         end_time=result.end_time,
-        workers=worker_shemas
+        workers=[],
+        car=None
     )
 
 
-@router.get('/by_id/{id}', response_model=BrigadeSchemeFull)
+@router.patch('/by_id/{id}', response_model=BrigadeSchemeFullShort)
+async def patch_brigade(id: int, data: BrigadeSchemePatch, session: AsyncSession = Depends(get_async_session)):
+    brigade = await session.get(Brigade, id, options=(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post), selectinload(Brigade.call),))
+    
+    if brigade is None:
+        raise HTTPException(404, 'no brigade with such id')
+
+    result = BrigadeSchemeFullShort.model_validate(brigade)
+
+    if data.call_id is not None:
+        if data.call_id != -1:
+            call = await session.get(Call, data.call_id)
+
+            if call is None:
+                raise HTTPException(400, 'wrong status id')
+            
+            brigade.call_id = call.id
+            result.call = call
+        else:
+            brigade.call_id = None
+            result.call = None
+        
+        session.add(brigade)
+
+    if data.car is not None:
+        car = await session.get(Car, data.car)
+
+        if car is None:
+            raise HTTPException(400, 'wrong car id')
+    
+        brigade.car_id = car.id
+        session.add(brigade)
+        result.car = car
+
+    if data.workers is not None:
+        new_worker_list, drivers = [], 0
+
+        for worker_id in data.workers:
+            worker = await session.get(Worker, worker_id, options=(selectinload(Worker.post), ))
+
+            if worker is None:
+                raise HTTPException(400, 'wrong worker id')
+
+            if worker.post.is_driver:
+                drivers += 1
+
+            new_worker_list.append(worker)
+        
+        if drivers == 0:
+            raise HTTPException(400, 'no driver')
+
+        for worker in brigade.workers:
+            if worker in new_worker_list:
+                continue
+
+            request = select(Brigade_xref_Worker).where((Brigade_xref_Worker.brigade_id == brigade.id) & (Brigade_xref_Worker.worker_id == worker.id))
+            connection = await session.scalar(request)
+            await session.delete(connection)
+
+        for worker in new_worker_list:
+            if worker in brigade.workers:
+                continue
+
+            session.add(Brigade_xref_Worker(brigade_id=brigade.id, worker_id=worker.id))
+
+        result.workers = list(map(lambda worker: WorkerScheme.model_validate(worker), new_worker_list))
+
+    await session.commit()
+
+    return result
+
+
+@router.get('/by_id/{id}', response_model=BrigadeSchemeFullShort)
 async def get_brigade_by_id(id: int, session: AsyncSession = Depends(get_async_session)):
-    data = await session.get(Brigade, id, options=(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post)))
+    data = await session.get(Brigade, id, options=(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post), selectinload(Brigade.call), ))
 
     if data is None:
         raise HTTPException(404, 'no brigade found')
     
-    return BrigadeSchemeFull.model_validate(data)
+    return BrigadeSchemeFullShort.model_validate(data)
 
 
-@router.get('/all', response_model=list[BrigadeSchemeFull])
+@router.get('/all', response_model=list[BrigadeSchemeFullShort])
 async def get_brigades(session: AsyncSession = Depends(get_async_session)):
-    request = select(Brigade).options(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post))
+    request = select(Brigade).options(selectinload(Brigade.car), selectinload(Brigade.workers), selectinload(Brigade.workers, Worker.post), selectinload(Brigade.call), )
     result = (await session.scalars(request)).all()
 
-    return [BrigadeSchemeFull.model_validate(data) for data in result]
+    return [BrigadeSchemeFullShort.model_validate(data) for data in result]
 
 
 @router.delete('/by_id/{id}')

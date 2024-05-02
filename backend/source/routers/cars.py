@@ -75,7 +75,7 @@ async def get_car(id: int, data: CarSchemeRead, session: AsyncSession = Depends(
 
 @router.get('/free', response_model=list[CarScheme])
 async def get_free_cars(session: AsyncSession = Depends(get_async_session)):
-    request = select(Car).filter(~Car.id.in_(select(Brigade.car_id)))
+    request = select(Car).filter(~Car.id.in_(select(Brigade.car_id).filter(Brigade.car_id.isnot(None))))
 
     result = (await session.scalars(request)).all()
 

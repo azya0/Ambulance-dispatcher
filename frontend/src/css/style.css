@@ -560,7 +560,8 @@ tfoot:hover {
     word-wrap: break-word;
 }
 
-.call-card .cross {
+.call-card .cross,
+.brigade-container .cross {
     opacity: 0;
     position: absolute;
     background: var(--color-red);
@@ -577,7 +578,8 @@ tfoot:hover {
     transform: translateY(-5px);
 }
 
-.call-card:hover .cross {
+.call-card:hover .cross,
+.brigade-container:hover .cross {
     opacity: 1;
 }
 
@@ -647,4 +649,124 @@ tfoot:hover {
 
 #call-main-container #table-footer {
     height: 5%;
+}
+
+#brigade-containter {
+    padding: 0 2.5%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    overflow-y: scroll;
+}
+
+#brigade-containter::-webkit-scrollbar {
+    width: 9px;
+}
+
+#brigade-containter::-webkit-scrollbar-track {
+    background: var(--main-color);
+}
+
+#brigade-containter::-webkit-scrollbar-thumb {
+    background-color: var(--main-bg-color);
+    border-radius: 20px;
+    border: 2px solid var(--main-color);
+}
+
+#brigade-container-btn {
+    margin-bottom: 2rem;
+}
+
+.brigade-container {
+    position: relative;
+    padding: .5rem 0;
+    background: #797dd4;
+    color: #303254;
+    box-shadow: 10px 10px 5px var(--main-bg-shadow);
+
+    max-width: 25vw;
+    font-size: 16px;
+    transition: 1s;
+    margin: 2rem;
+}
+
+.brigade-container:hover {
+    box-shadow: 15px 15px 7px var(--main-bg-shadow);
+    transform: translateY(-5px);
+}
+
+.brigade-container h4 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.brigade-container > h4:nth-last-child(2) {
+    margin: 0;
+}
+
+.brigade-container > div {
+    padding: .5rem;
+}
+
+.brigade-container .brigade-call,
+.brigade-container .brigade-car-info {
+    display: flex;
+    justify-content: space-around;
+    border: 2px solid var(--main-bg-color);
+    margin: .5rem;
+}
+
+.brigade-container option {
+    text-align: center;
+}
+
+.brigade-container .brigade-workers .worker-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.brigade-container .brigade-workers .worker-container b:nth-child(1) {
+    margin-right: .5rem;
+}
+
+.brigade-container select {
+    margin: 0;
+    padding: 0;
+    border: none;
+    padding: 0 2% 0 2%;
+    background: var(--main-bg-color);
+    font-weight: bold;
+    color: var(--main-color);
+    transition: .5s;
+    box-sizing: border-box;
+}
+
+.brigade-container select:focus {
+    outline: none;
+}
+
+.brigade-container .brigade-workers {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid var(--main-bg-color);
+    margin: .5rem;
+    cursor: pointer;
+}
+
+.brigade-container .brigade-workers .brigade-workers-add {
+    text-align: center;
+    opacity: 0.8;
+    transition: 1s;
+    cursor: pointer;
+}
+
+.brigade-container .brigade-workers .brigade-workers-add:hover {
+    background-color: #303254;
+    color: #797dd4;
+    opacity: 1;
+}
+
+.brigade-time div {
+    display: flex;
+    justify-content: space-between;
 }

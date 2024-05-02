@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from db.engine import get_async_session
 from db.models import Brigade, Call, Patient, StatusType
-from routers.schemas import CallPatchScheme, CallScheme, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
+from routers.schemas import CallPatchScheme, CallScheme, CallSchemeBrigadeShort, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
 
 
 router = APIRouter(
@@ -79,7 +79,7 @@ async def get_status(id: int, data: StatusSchemeRead, session: AsyncSession = De
     return StatusScheme.model_validate(result)
 
 
-@router.post('/call', response_model=CallScheme)
+@router.post('/call', response_model=CallSchemeBrigadeShort)
 async def post_call(data: CallSchemeRead, session: AsyncSession = Depends(get_async_session)):
     status = await session.get(StatusType, data.status.id)
 
@@ -100,15 +100,22 @@ async def post_call(data: CallSchemeRead, session: AsyncSession = Depends(get_as
     print(datetime.datetime.now())
     print(call.created_at)
 
-    return CallScheme(**vars(call), patient=patient, status=status)
+    return CallSchemeBrigadeShort(**vars(call), patient=patient, status=status)
 
 
-@router.get('/calls', response_model=list[CallScheme])
+@router.get('/calls', response_model=list[CallSchemeBrigadeShort])
 async def get_calls(session: AsyncSession = Depends(get_async_session)):
-    return (await session.scalars(select(Call).where(Call.end_at == None).options(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), ))).all()
+    return (await session.scalars(select(Call).where(Call.end_at == None).options(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade),))).all()
 
 
-@router.patch('/call/{call_id}', response_model=CallScheme)
+@router.get('/calls/free', response_model=list[CallSchemeBrigadeShort])
+async def get_calls_free(session: AsyncSession = Depends(get_async_session)):
+    request = select(Call).where(Call.end_at == None).options(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade)).filter(Call.brigade == None)
+
+    return (await session.scalars(request)).all()
+
+
+@router.patch('/call/{call_id}', response_model=CallSchemeBrigadeShort)
 async def patch_call(call_id: int, data: CallPatchScheme, session: AsyncSession = Depends(get_async_session)):
     result = await session.get(Call, call_id, options=(selectinload(Call.patient), selectinload(Call.status), selectinload(Call.brigade), )) 
 

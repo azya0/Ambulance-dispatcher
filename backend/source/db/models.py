@@ -50,10 +50,10 @@ class Brigade(Base):
     __tablename__ = 'brigade'
 
     call_id = Column(Integer, ForeignKey('call.id'), nullable=True, default=None)
-    car_id = Column(Integer, ForeignKey('car.id'), nullable=False)
+    car_id = Column(Integer, ForeignKey('car.id'), nullable=True)
 
-    start_time = Column(DateTime(timezone=True), nullable=False)
-    end_time = Column(DateTime(timezone=True), nullable=False)
+    start_time = Column(DateTime(timezone=True), nullable=True)
+    end_time = Column(DateTime(timezone=True), nullable=True)
 
     car = relationship("Car", back_populates="brigade", uselist=False)
     workers = relationship("Worker", secondary='brigade_xref_worker', back_populates='brigade', uselist=True)

@@ -1,89 +1,68 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { CSSTransition } from 'react-transition-group';
 import config from "../../config";
 import { Person } from "../Personal/Personal";
 import { CallShort } from "../Call/Call";
+import BrigadeCard from "./BrigadeCard";
+import { CarShort } from "../Cars/Cars";
 
 
-interface Brigade {
+export interface Brigade {
     id: number,
     car: {
         id: number,
         model: string,
-    }
+    } | null,
     workers: Array<Person>,
-    call: CallShort,
+    call: CallShort | null,
+
+    start_time: Date,
+    end_time: Date,
 }
 
 
 function BrigadePage() {
-    const [brigades, setBrigades] = useState<Brigade>();
-    const [isAddBrigade, setAddBrigade] = useState(false);
+    const [brigades, setBrigades] = useState<Array<Brigade>>();
+    const [calls, setCalls] = useState<Array<CallShort>>();
+    const [workers, setWorkers] = useState<Array<Person>>();
+    const [cars, setCars] = useState<Array<CarShort>>();
     
     useEffect(() => {
-        axios.get(`${config.url}/brigade/all`).then((response) => {
-            setBrigades(response.data);
+        axios.get(`${config.url}/brigade/all`).then(response => {
+            setBrigades(response.data.sort((brigade1: Brigade, brigade2: Brigade) => brigade1.id > brigade2.id ? 1 : -1));
+        });
+
+        axios.get(`${config.url}/personal/workers/free`).then(response => {
+            setWorkers(response.data);
+        });
+
+        axios.get(`${config.url}/call/calls/free`).then(response => {
+            setCalls(response.data);
+        });
+
+        axios.get(`${config.url}/car/free`).then(response => {
+            setCars(response.data);
         });
     }, []);
 
-    if (brigades === undefined)
+    if (brigades === undefined || calls === undefined || workers === undefined || cars === undefined)
         return null;
-
-    console.log(brigades);
 
     return (
         <>
-        {/* <CSSTransition in={isAddBrigade} classNames='disappear-animation' timeout={500} unmountOnExit>
-        <div id='add-call'>
-            <b className='cross' onClick={() => setAddBrigade(false)}>╳</b>
-            <form onSubmit={(data: React.FormEvent<HTMLFormElement>) => {
-                let uploadData = Object.values(data.target);
-
-                axios.post(`${config.url}/call/call`, {
-                    patient: {
-                        first_name: uploadData[0].value,
-                        second_name: uploadData[1].value,
-                        patronymic: uploadData[2].value,
-                        address: uploadData[3].value,
-                        descriptions: uploadData[4].value,
-                    },
-
-                    status: {
-                        id: uploadData[5].value,
-                        name: uploadData[5].options[uploadData[5].selectedIndex].text,
-                    },
-                }).then((response) => {
-                    return;
-                }).catch((error) => console.log(error));
-
-                setAddBrigade(false);
-                data.preventDefault();
-            }}>
-                <div>
-                    <h1>Пациент:</h1>
-                    <h2>Фамилия</h2>
-                    <input type='first-name'/>
-                    <h2>Имя</h2>
-                    <input type='second-name'/>
-                    <h2>Отчество</h2>
-                    <input type='patronymic'/>
-                    <h2>Адрес</h2>
-                    <input type='address'/>
-                    <h2>Описание</h2>
-                    <input type='patronymic'/>
-                    <h1>Статус</h1>
-                    <select name="status">
-                        <option value="-1" key={-1}>Выберете статус</option>
-                        { statuses.map((value, index) => <option value={value.id} key={index}>{value.name}</option>) }
-                    </select>
-                </div>
-                <div>
-                    <button>Создать</button>
-                </div>
-            </form>
+        <div>
+            <div id='brigade-container-btn'>
+                <div id='table-footer' onClick={() => {
+                    axios.post(`${config.url}/brigade`).then(response => {
+                        setBrigades([...brigades, response.data]);
+                    })
+                }}>Добавить новую бригаду</div>
+            </div>
+            <div id='brigade-containter'>
+                { brigades.map(value => <BrigadeCard key={value.id} calls={calls} setCalls={setCalls} workers={workers}
+                setWorkers={setWorkers} data={value} cars={cars} setCars={setCars} brigades={brigades} setBrigades={setBrigades}/>) }
+            </div>
         </div>
-        </CSSTransition> */}
         </>
     );
 }

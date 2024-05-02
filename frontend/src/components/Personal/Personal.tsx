@@ -4,6 +4,7 @@ import { CSSTransition } from 'react-transition-group';
 
 import PersonalString from './PersonalString';
 import config from "../../config";
+import { Post } from '../Post/Post';
 
 
 export interface Person {
@@ -12,10 +13,7 @@ export interface Person {
     second_name: string,
     patronymic: string,
     is_ill: boolean,
-    post: {
-        id: number,
-        name: string,
-    }
+    post: Post,
 }
 
 
@@ -45,8 +43,8 @@ function Personal() {
                 let uploadData = Object.values(data.target);
                 
                 axios.post(`${config.url}/personal/worker`, {
-                    first_name: uploadData[0].value,
-                    second_name: uploadData[1].value,
+                    first_name: uploadData[1].value,
+                    second_name: uploadData[0].value,
                     patronymic: uploadData[2].value,
                     post_id: uploadData[3].value,
                 }).then((response) => {
