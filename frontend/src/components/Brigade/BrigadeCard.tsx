@@ -48,6 +48,9 @@ function BrigadeCard({ data, workers, setWorkers, calls, setCalls, cars, setCars
     <div className="brigade-container">
         <b className='cross' onClick={() => {
             axios.delete(`${config.url}/brigade/by_id/${brigade.id}`).then(() => {
+                if (brigade.car !== null)
+                    setCars([...cars, brigade.car]);
+                setWorkers([...workers, ...brigade.workers.filter(val => val.is_ill === false)]);
                 setBrigades(brigades.filter(val => val.id !== brigade.id));
             });
         }}>╳</b>

@@ -657,6 +657,7 @@ tfoot:hover {
     flex-wrap: wrap;
     justify-content: space-evenly;
     overflow-y: scroll;
+    height: 87vh;
 }
 
 #brigade-containter::-webkit-scrollbar {
@@ -769,4 +770,14 @@ tfoot:hover {
 .brigade-time div {
     display: flex;
     justify-content: space-between;
+}
+
+.brigade-time input {
+    background: var(--main-bg-color);
+    color: var(--main-color);
+    border: none;
+}
+
+.brigade-time input:focus {
+    outline: none;
 }
