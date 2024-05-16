@@ -9,6 +9,8 @@ import { CarShort } from "../Cars/Cars";
 
 export interface Brigade {
     id: number,
+    rating: number,
+
     car: {
         id: number,
         model: string,

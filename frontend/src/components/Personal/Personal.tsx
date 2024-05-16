@@ -13,6 +13,7 @@ export interface Person {
     second_name: string,
     patronymic: string,
     is_ill: boolean,
+    is_fired: boolean,
     post: Post,
 }
 

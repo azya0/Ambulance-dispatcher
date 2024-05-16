@@ -135,13 +135,15 @@ async def delete_worker_by_id(id: int, session: AsyncSession = Depends(get_async
 
     if worker is None:
         raise HTTPException(404, f'no worker with id {id}')
-
-    await session.delete(worker)
+    
+    worker.is_fired = True
+    session.add(worker)
+    await session.commit()
 
 
 @router.get('/workers', response_model=list[WorkerScheme])
 async def get_workers(session: AsyncSession = Depends(get_async_session)):
-    workers = (await session.scalars(select(Worker).options(selectinload(Worker.post)))).all()
+    workers = (await session.scalars(select(Worker).where(Worker.is_fired == False).options(selectinload(Worker.post)))).all()
 
     return [WorkerScheme.model_validate(worker) for worker in workers]
 
@@ -149,7 +151,7 @@ async def get_workers(session: AsyncSession = Depends(get_async_session)):
 @router.get('/workers/free', response_model=list[WorkerScheme])
 async def get_free_workers(session: AsyncSession = Depends(get_async_session)):
 
-    request = select(Worker).where(Worker.is_ill == False).outerjoin(
+    request = select(Worker).where((Worker.is_ill == False) & (Worker.is_fired == False)).outerjoin(
         Brigade_xref_Worker, Worker.id == Brigade_xref_Worker.worker_id).filter(
         (Brigade_xref_Worker.id == None)).options(selectinload(Worker.post), )
 

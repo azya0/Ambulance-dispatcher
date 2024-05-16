@@ -24,6 +24,7 @@ async def post_brigade(session: AsyncSession = Depends(get_async_session)):
     await session.refresh(result)
 
     return BrigadeSchemeFull(
+        rating=0,
         id=result.id,
         start_time=result.start_time,
         end_time=result.end_time,
@@ -80,8 +81,14 @@ async def patch_brigade(id: int, data: BrigadeSchemePatch, session: AsyncSession
 
             new_worker_list.append(worker)
         
-        if drivers == 0:
+        if len(new_worker_list) > 3:
+            raise HTTPException(400, 'too many workers')
+
+        if drivers == 0 and len(new_worker_list) != 0:
             raise HTTPException(400, 'no driver')
+
+        if drivers > 1:
+            raise HTTPException(400, 'too many drivers')
 
         for worker in brigade.workers:
             if worker in new_worker_list:
@@ -135,3 +142,15 @@ async def delete_brigade_by_id(id: int, session: AsyncSession = Depends(get_asyn
         await session.delete(xref)
     
     await session.delete(brigade)
+
+
+@router.patch('/score/{score}/by_id/{id}')
+async def patch_score(id: int, score: int, session: AsyncSession = Depends(get_async_session)):
+    brigade = await session.get(Brigade, id)
+
+    if brigade is None:
+        raise HTTPException(404, 'no brigade with such id')
+    
+    brigade.rating = score
+    session.add(brigade)
+    await session.commit()

@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from db.engine import get_async_session
 from db.models import Brigade, Call, Patient, StatusType
-from routers.schemas import CallPatchScheme, CallScheme, CallSchemeBrigadeShort, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
+from routers.schemas import CallPatchScheme, CallSchemeBrigadeShort, CallSchemeRead, StatusScheme, StatusSchemeFull, StatusSchemeRead
 
 
 router = APIRouter(

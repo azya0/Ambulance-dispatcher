@@ -24,6 +24,7 @@ class Worker(Base, Human):
 
     is_ill = Column(Boolean, default=False)
     post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
+    is_fired = Column(Boolean, default=False)
 
     post = relationship("Post", back_populates="workers", uselist=False)
     brigade = relationship("Brigade", secondary='brigade_xref_worker', back_populates='workers', uselist=False)

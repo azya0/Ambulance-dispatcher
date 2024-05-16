@@ -40,6 +40,7 @@ class WorkerSchemePatch(BaseModel):
 class WorkerScheme(HumanScheme, ID):
     post: PostScheme
     is_ill: bool
+    is_fired: bool
 
     class Config:
         from_attributes = True
@@ -116,6 +117,7 @@ class CallPatchScheme(BaseModel):
 
 class BrigadeScheme(BaseModel):
     id: int
+    rating: int
 
     car: CarScheme | None
     start_time: datetime.datetime
@@ -182,6 +184,7 @@ class CallSchemeExtremeShort(BaseModel, ID):
 
 class BrigadeSchemeFullShort(BrigadeScheme):
     call: CallSchemeExtremeShort | None = None
+    rating: int
 
     class Config:
         from_attributes = True

@@ -782,3 +782,19 @@ tfoot:hover {
 .brigade-time input:focus {
     outline: none;
 }
+
+.brigade-rating {
+    display: flex;
+    justify-content: space-between;
+}
+
+.brigade-rating button {
+    border: 0;
+    background: var(--main-bg-color);
+    color: var(--main-color);
+    cursor: pointer;
+}
+
+.brigade-worker-fired {
+    background: var(--color-red);
+}
