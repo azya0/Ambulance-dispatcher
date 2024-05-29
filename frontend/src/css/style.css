@@ -718,6 +718,10 @@ tfoot:hover {
     margin: .5rem;
 }
 
+.brigade-car-info select {
+    padding: 0;
+}
+
 .brigade-container option {
     text-align: center;
 }

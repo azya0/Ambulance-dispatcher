@@ -1,3 +1,4 @@
+import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -136,14 +137,14 @@ async def delete_worker_by_id(id: int, session: AsyncSession = Depends(get_async
     if worker is None:
         raise HTTPException(404, f'no worker with id {id}')
     
-    worker.is_fired = True
+    worker.fired_at = datetime.datetime.now()
     session.add(worker)
     await session.commit()
 
 
 @router.get('/workers', response_model=list[WorkerScheme])
 async def get_workers(session: AsyncSession = Depends(get_async_session)):
-    workers = (await session.scalars(select(Worker).where(Worker.is_fired == False).options(selectinload(Worker.post)))).all()
+    workers = (await session.scalars(select(Worker).where(Worker.fired_at == None).options(selectinload(Worker.post)))).all()
 
     return [WorkerScheme.model_validate(worker) for worker in workers]
 
@@ -151,7 +152,7 @@ async def get_workers(session: AsyncSession = Depends(get_async_session)):
 @router.get('/workers/free', response_model=list[WorkerScheme])
 async def get_free_workers(session: AsyncSession = Depends(get_async_session)):
 
-    request = select(Worker).where((Worker.is_ill == False) & (Worker.is_fired == False)).outerjoin(
+    request = select(Worker).where((Worker.is_ill == False) & (Worker.fired_at == None)).outerjoin(
         Brigade_xref_Worker, Worker.id == Brigade_xref_Worker.worker_id).filter(
         (Brigade_xref_Worker.id == None)).options(selectinload(Worker.post), )
 

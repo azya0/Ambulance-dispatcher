@@ -1,15 +1,31 @@
+import datetime
+from typing import Annotated
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, DateTime, func
 from sqlalchemy.orm import as_declarative, relationship
+
+
+MetaStr = Annotated[str, 255]
+DetailedInfoStr = Annotated[str, 2000]
+endl, tab = '\n', '\t'
 
 
 @as_declarative()
 class Base:
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, primary_key=True, index=True)
+    type_annotation_map = {
+        MetaStr: String(200),
+        DetailedInfoStr: String(2000)
+    }
 
-# group = relationship("Group", back_populates='students', uselist=False)
-# subjects = relationship("Subject", secondary='specialization_xref_subject', back_populates='specializations', uselist=True)
+    def __repr__(self):
+        columns = []
+        for column in self.__table__.columns.keys():
+            columns.append(f"{column}={getattr(self, column)}")
+
+        return f"[{self.__class__.__name__}]\n\t {f',{endl + tab}'.join(columns)}"
+
+    id = Column(Integer, primary_key=True, index=True)
 
 
 @as_declarative()
@@ -24,7 +40,12 @@ class Worker(Base, Human):
 
     is_ill = Column(Boolean, default=False)
     post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
-    is_fired = Column(Boolean, default=False)
+    add_at = Column(DateTime(timezone=True),
+                    server_default=func.now(),
+                    server_onupdate=func.now(),
+                    onupdate=datetime.datetime.now,
+                    nullable=False)
+    fired_at = Column(DateTime(timezone=True), nullable=True)
 
     post = relationship("Post", back_populates="workers", uselist=False)
     brigade = relationship("Brigade", secondary='brigade_xref_worker', back_populates='workers', uselist=False)
@@ -100,3 +121,30 @@ class StatusType(Base):
     is_system_closed = Column(Boolean, nullable=False, default=False)
 
     calls = relationship("Call", back_populates="status")
+
+
+class TestModel1000(Base):
+    __tablename__ = "test_model_1000"
+
+    name = Column(String(64), nullable=True, unique=False)
+    some_string = Column(String(128), nullable=True, unique=False)
+    date = Column(DateTime(timezone=True), nullable=True)
+    fake_unique = Column(String(64), nullable=False, unique=False)
+
+
+class TestModel10000(Base):
+    __tablename__ = "test_model_10000"
+
+    name = Column(String(64), nullable=True, unique=False)
+    some_string = Column(String(128), nullable=True, unique=False)
+    date = Column(DateTime(timezone=True), nullable=True)
+    fake_unique = Column(String(64), nullable=False, unique=False)
+
+
+class TestModel100000(Base):
+    __tablename__ = "test_model_100000"
+
+    name = Column(String(64), nullable=True, unique=False)
+    some_string = Column(String(128), nullable=True, unique=False)
+    date = Column(DateTime(timezone=True), nullable=True)
+    fake_unique = Column(String(64), nullable=False, unique=False)

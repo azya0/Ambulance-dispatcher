@@ -13,7 +13,7 @@ export interface Person {
     second_name: string,
     patronymic: string,
     is_ill: boolean,
-    is_fired: boolean,
+    fired_at: Date | null,
     post: Post,
 }
 
@@ -26,7 +26,7 @@ function Personal() {
     useEffect(() => {
         axios.get(`${config.url}/personal/workers`).then((value) =>
             setPersonal(value.data.sort((person1: Person, person2: Person) =>
-            person1.second_name > person2.second_name ? 1 : -1)));
+            person1.second_name > person2.second_name ? 1 : -1))).catch(err => console.log(err));
         axios.get(`${config.url}/personal/posts`).then((value) => {
             setPosts(new Map(value.data.map((element: {id: number, name: string}) => [element.id, element.name])));
         });

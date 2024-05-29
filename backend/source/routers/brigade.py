@@ -76,6 +76,9 @@ async def patch_brigade(id: int, data: BrigadeSchemePatch, session: AsyncSession
             if worker is None:
                 raise HTTPException(400, 'wrong worker id')
 
+            if worker.fired_at is not None:
+                raise HTTPException(400, 'worker is fired')
+
             if worker.post.is_driver:
                 drivers += 1
 

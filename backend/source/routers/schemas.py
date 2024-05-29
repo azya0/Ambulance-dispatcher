@@ -40,7 +40,7 @@ class WorkerSchemePatch(BaseModel):
 class WorkerScheme(HumanScheme, ID):
     post: PostScheme
     is_ill: bool
-    is_fired: bool
+    fired_at: datetime.datetime | None
 
     class Config:
         from_attributes = True

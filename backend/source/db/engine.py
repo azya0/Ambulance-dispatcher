@@ -9,7 +9,13 @@ import sqlalchemy as sql
 class SessionManager:
     def __init__(self):
         settings = get_settings()
-        self.async_engine = create_async_engine(url=settings.SQLALCHEMY_URL)
+        self.async_engine = create_async_engine(
+            url=settings.SQLALCHEMY_URL,
+            echo=False,
+            pool_size=5,
+            max_overflow=10
+        )
+        
         self.async_session = sessionmaker(
             self.async_engine,
             expire_on_commit=False,

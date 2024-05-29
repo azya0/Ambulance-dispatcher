@@ -77,12 +77,12 @@ function BrigadeCard({ data, workers, setWorkers, calls, setCalls, cars, setCars
         <h4>Персонал:</h4>
         <div className="brigade-workers">
             { brigade.workers.map(value => 
-            <div className={value.is_fired ? "worker-container brigade-worker-fired" : "worker-container"} key={value.id} onDoubleClick={() => {
+            <div className={value.fired_at !== null ? "worker-container brigade-worker-fired" : "worker-container"} key={value.id} onDoubleClick={() => {
                 const response_data = brigade.workers.filter(val => val.id !== value.id).map(val => val.id);
                 axios.patch(`${config.url}/brigade/by_id/${brigade.id}`, {workers: response_data}).then(response => {
                     setBrigade(response.data);
 
-                    if (!value.is_fired)
+                    if (value.fired_at === null)
                         setWorkers([...workers, value]);
                 }).catch(error => {
                     if (error.response.status === 400)
