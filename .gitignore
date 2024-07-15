@@ -3,8 +3,10 @@ __pycache__
 test.py
 README
 .vscode
+logs.txt
 
 node_modules
+package-lock.json
 .pnp
 .pnp.js
 

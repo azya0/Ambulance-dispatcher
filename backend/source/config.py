@@ -1,17 +1,15 @@
 from functools import lru_cache
 
-from pydantic import PostgresDsn, validator
+from pydantic import PostgresDsn, field_validator, FieldValidationInfo
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
 
 class Settings(BaseSettings):
-    DEBUG: bool
-
     load_dotenv()
-
-    HOST: str
     
+    DEBUG: bool
+    HOST: str
     POSTGRES_DB: str
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -20,28 +18,26 @@ class Settings(BaseSettings):
 
     SQLALCHEMY_URL: str | None = None
 
-    @validator('POSTGRES_HOST', pre=True)
-    def set_db_host(cls, value, values):
-        return 'localhost'
-    
-        if values.get("DEBUG"):
-            if values.get("HOST") == '0.0.0.0':
-                return 'localhost'
-            return values.get("HOST")
+    @field_validator('POSTGRES_HOST')
+    @classmethod
+    def validate_db_host(cls, value: str, info: FieldValidationInfo):
+        if info.data["DEBUG"]:
+            return 'localhost'
         return value
 
-    @validator('SQLALCHEMY_URL', pre=True)
-    def get_sqlalchemy_url(cls, value, values):
+    @field_validator('SQLALCHEMY_URL')
+    @classmethod
+    def validate_sqlalchemy_url(cls, value: str | None, info: FieldValidationInfo):
         if isinstance(value, str):
             return value
 
         return str(PostgresDsn.build(
             scheme='postgresql+asyncpg',
-            username=values.get('POSTGRES_USER'),
-            password=values.get('POSTGRES_PASSWORD'),
-            host=values.get('POSTGRES_HOST'),
-            port=values.get('POSTGRES_PORT'),
-            path=values.get("POSTGRES_DB")
+            username=info.data["POSTGRES_USER"],
+            password=info.data["POSTGRES_PASSWORD"],
+            host=info.data["POSTGRES_HOST"],
+            port=info.data["POSTGRES_PORT"],
+            path=info.data["POSTGRES_DB"],
         ))
 
 
