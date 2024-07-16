@@ -8,6 +8,8 @@ RUN npm install --only=prod
 
 COPY . /frontend
 
+RUN npm run build
+
 EXPOSE 3000
 
 RUN npm install -g serve
