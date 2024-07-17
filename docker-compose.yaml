@@ -56,5 +56,6 @@ services:
       - .env
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    restart: always
     depends_on:
       - frontend
